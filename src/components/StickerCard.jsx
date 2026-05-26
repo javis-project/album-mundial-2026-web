@@ -49,22 +49,11 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
     boxShadow: `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px ${primaryColor}30`,
   } : {};
 
-  const lastClickTimeRef = React.useRef(0);
-
   const handleClick = (e) => {
     if (e.target.closest(".sticker-card-subtract-btn")) {
       return;
     }
-    const currentTime = Date.now();
-    const timeDiff = currentTime - lastClickTimeRef.current;
-    if (timeDiff < 300) {
-      onSubtract();
-      onSubtract();
-      lastClickTimeRef.current = 0;
-    } else {
-      onAdd();
-      lastClickTimeRef.current = currentTime;
-    }
+    onAdd();
   };
 
   return (
