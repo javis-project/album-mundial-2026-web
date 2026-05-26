@@ -59,6 +59,7 @@ export default function App() {
             state={albumState}
             onNavigateToAlbum={() => setActiveTab("album")}
             onFillRandom={handleFillRandomly}
+            onAddSticker={handleAddSticker}
           />
         );
       case "album":
