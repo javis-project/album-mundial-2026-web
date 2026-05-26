@@ -1152,6 +1152,13 @@ textarea::placeholder {
   .welcome-banner-ball {
     margin: 0 auto !important;
   }
+
+  /* Centering titles in TradeView and ToolsView */
+  .trade-intro-card,
+  .trade-input-card,
+  .tools-intro-card {
+    text-align: center;
+  }
 }
 
 @media (max-width: 480px) {

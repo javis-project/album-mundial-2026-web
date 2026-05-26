@@ -92,7 +92,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {/* Title */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
+      <div className="glass-panel tools-intro-card" style={{ padding: "24px" }}>
         <h2 style={{ fontSize: "1.45rem", marginBottom: "8px", fontWeight: "700" }}>
           Herramientas y Portabilidad
         </h2>

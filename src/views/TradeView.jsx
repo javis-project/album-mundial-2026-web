@@ -79,7 +79,7 @@ export default function TradeView({ state }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {/* Intro Banner */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
+      <div className="glass-panel trade-intro-card" style={{ padding: "24px" }}>
         <h2 style={{ fontSize: "1.45rem", marginBottom: "8px", fontWeight: "700" }}>
           Matchmaker de Intercambios
         </h2>
@@ -106,7 +106,7 @@ export default function TradeView({ state }) {
       </div>
 
       {/* Code Input Card */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
+      <div className="glass-panel trade-input-card" style={{ padding: "24px" }}>
         <h3 style={{ fontSize: "1.1rem", marginBottom: "12px", fontWeight: "600" }}>
           Pegar código de tu amigo
         </h3>
