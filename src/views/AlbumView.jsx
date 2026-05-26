@@ -11,16 +11,16 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
   const groupTabs = [
     "Especiales FWC",
     ...Object.keys(GROUPS),
-    "Leyendas LEG"
+    "Coca-Cola CC"
   ];
 
   // Helper to check if a code belongs to a group
   const isCodeInGroup = (code, grp) => {
     if (grp === "Especiales FWC") {
-      return code.startsWith("FWC");
+      return code === "00" || code.startsWith("FWC");
     }
-    if (grp === "Leyendas LEG") {
-      return code.startsWith("LEG");
+    if (grp === "Coca-Cola CC") {
+      return code.startsWith("CC");
     }
     const teams = GROUPS[grp] || [];
     const prefix = code.slice(0, 3);
@@ -43,7 +43,7 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
         
         // Match team names
         let matchesTeam = false;
-        if (!code.startsWith("FWC") && !code.startsWith("LEG")) {
+        if (code !== "00" && !code.startsWith("FWC") && !code.startsWith("CC")) {
           const teamPrefix = code.slice(0, 3);
           const teamName = TEAM_NAMES[teamPrefix] || "";
           matchesTeam = teamName.toLowerCase().includes(query);
@@ -68,8 +68,8 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
       return [{ id: "fwc", title: "Cromos Especiales FWC", isFWC: true, codes: filteredStickers, colors: ["#dfb23b", "#ffd700"] }];
     }
 
-    if (activeGroup === "Leyendas LEG") {
-      return [{ id: "leg", title: "Leyendas de la Copa del Mundo", isLEG: true, codes: filteredStickers, colors: ["#dfb23b", "#9c7c25"] }];
+    if (activeGroup === "Coca-Cola CC") {
+      return [{ id: "cc", title: "Cromos Especiales Coca-Cola", isCC: true, codes: filteredStickers, colors: ["#c8102e", "#ffffff"] }];
     }
 
     // Render by teams in the selected group (Brought back the (NED), (MEX) suffix code as requested)
@@ -149,17 +149,44 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
 
         {/* Group Tabs (hidden if searching) */}
         {searchQuery.trim() === "" && (
-          <div className="group-tabs" style={{ marginTop: "15px" }}>
-            {groupTabs.map((tab) => (
-              <button
-                key={tab}
-                className={`group-tab ${activeGroup === tab ? "active" : ""}`}
-                onClick={() => setActiveGroup(tab)}
+          <>
+            {/* Desktop Tabs */}
+            <div className="group-tabs desktop-only-tabs" style={{ marginTop: "15px" }}>
+              {groupTabs.map((tab) => (
+                <button
+                  key={tab}
+                  className={`group-tab ${activeGroup === tab ? "active" : ""}`}
+                  onClick={() => setActiveGroup(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Dropdown Select */}
+            <div className="mobile-only-group-select" style={{ marginTop: "15px" }}>
+              <select
+                value={activeGroup}
+                onChange={(e) => setActiveGroup(e.target.value)}
+                style={{
+                  background: "rgba(14, 16, 24, 0.8)",
+                  border: "1px solid var(--gold-dim)",
+                  color: "var(--text-light)",
+                  fontWeight: "600",
+                  padding: "10px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  cursor: "pointer",
+                  width: "100%"
+                }}
               >
-                {tab}
-              </button>
-            ))}
-          </div>
+                {groupTabs.map((tab) => (
+                  <option key={tab} value={tab} style={{ background: "#0e1018", color: "var(--text-light)" }}>
+                    {tab}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
         )}
       </div>
 
@@ -259,7 +286,7 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                     {section.title}
                     
                     {/* Point 2: Animated vector soccer ball spinner */}
-                    {(section.isFWC || section.isLEG || section.isSearch) && (
+                    {(section.isFWC || section.isCC || section.isSearch) && (
                       <SoccerBall size={22} className="spinning-soccer-ball" style={{ marginLeft: "10px" }} />
                     )}
                   </h3>

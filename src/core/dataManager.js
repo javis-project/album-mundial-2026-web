@@ -183,9 +183,9 @@ export function getStats(state) {
 export function getGroupStats(state, groupName) {
   let groupStickers = [];
   if (groupName === "Especiales FWC") {
-    groupStickers = STICKER_CODES.filter(c => c.startsWith("FWC"));
-  } else if (groupName === "Leyendas LEG") {
-    groupStickers = STICKER_CODES.filter(c => c.startsWith("LEG"));
+    groupStickers = STICKER_CODES.filter(c => c === "00" || c.startsWith("FWC"));
+  } else if (groupName === "Coca-Cola CC") {
+    groupStickers = STICKER_CODES.filter(c => c.startsWith("CC"));
   } else {
     const teams = GROUPS[groupName] || [];
     groupStickers = STICKER_CODES.filter(c => teams.some(t => c.startsWith(t)));

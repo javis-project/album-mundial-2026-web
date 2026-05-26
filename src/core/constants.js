@@ -158,23 +158,24 @@ export const GROUPS = {
 
 function generateStickerCodes() {
     const codes = [];
-    // Generales (FWC1 - FWC30)
-    for (let i = 1; i <= 30; i++) {
+    // Cromo inicial especial 00
+    codes.push("00");
+    
+    // Generales (FWC1 - FWC19)
+    for (let i = 1; i <= 19; i++) {
         codes.push(`FWC${i}`);
     }
     
-    // 48 Equipos x 19 figuritas
+    // 48 Equipos x 20 figuritas
     for (const team of TEAMS) {
-        for (let i = 1; i <= 19; i++) {
+        for (let i = 1; i <= 20; i++) {
             codes.push(`${team}${i}`);
         }
     }
     
-    // Leyendas (hasta llegar a 980)
-    const currentLen = codes.length; // 30 + 912 = 942
-    const remaining = 980 - currentLen;
-    for (let i = 1; i <= remaining; i++) {
-        codes.push(`LEG${i}`);
+    // Especiales de Coca-Cola (CC1 - CC14)
+    for (let i = 1; i <= 14; i++) {
+        codes.push(`CC${i}`);
     }
     
     return codes;
@@ -184,10 +185,10 @@ export const STICKER_CODES = generateStickerCodes();
 export const TOTAL_STICKERS = STICKER_CODES.length;
 
 export function getStickerCategory(code) {
-    if (code.startsWith("FWC")) {
-        return ["Especiales FWC", "Inicio / FWC"];
-    } else if (code.startsWith("LEG")) {
-        return ["Leyendas LEG", "Leyendas"];
+    if (code === "00" || code.startsWith("FWC")) {
+        return ["Especiales FWC", "Especiales FWC"];
+    } else if (code.startsWith("CC")) {
+        return ["Coca-Cola CC", "Coca-Cola"];
     } else {
         const teamCode = code.slice(0, 3);
         for (const [grp, teamsList] of Object.entries(GROUPS)) {

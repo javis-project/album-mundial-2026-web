@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { Plus, Minus } from "lucide-react";
 import { TEAM_NAMES, TEAM_COLORS } from "../core/constants";
 
 export default function StickerCard({ code, count, onAdd, onSubtract }) {
-  const [activeTouch, setActiveTouch] = useState(false);
-  const isSpecial = code.startsWith("FWC") || code.startsWith("LEG");
+  const isSpecial = code === "00" || code.startsWith("FWC") || code.startsWith("CC");
   const isOwned = count > 0;
   const isDuplicate = count > 1;
 
   // Split and format the code (e.g., "FWC15" -> FWC, 15, Copa Mundial)
   const parseCode = (stickerCode) => {
+    if (stickerCode === "00") {
+      return {
+        prefix: "",
+        num: "00",
+        label: "Cromo Inicial"
+      };
+    }
     if (stickerCode.startsWith("FWC")) {
       return {
         prefix: "FWC",
@@ -17,11 +23,11 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
         label: "Copa Mundial"
       };
     }
-    if (stickerCode.startsWith("LEG")) {
+    if (stickerCode.startsWith("CC")) {
       return {
-        prefix: "LEG",
-        num: stickerCode.replace("LEG", ""),
-        label: "Leyendas"
+        prefix: "CC",
+        num: stickerCode.replace("CC", ""),
+        label: "Coca-Cola"
       };
     }
     const prefix = stickerCode.slice(0, 3);
@@ -37,29 +43,63 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
   const colors = TEAM_COLORS[prefix] || ["#334155", "#475569"];
   const primaryColor = colors[0];
 
-  const handleCardClick = (e) => {
-    // If clicking overlays buttons, skip toggle
-    if (e.target.closest(".overlay-btn")) {
-      return;
-    }
-    setActiveTouch(!activeTouch);
-  };
-
   const cardStyle = isOwned && !isSpecial ? {
     background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}c0 60%, #0c0f16 100%)`,
     borderColor: primaryColor,
     boxShadow: `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px ${primaryColor}30`,
   } : {};
 
+  const lastClickTimeRef = React.useRef(0);
+
+  const handleClick = (e) => {
+    if (e.target.closest(".sticker-card-subtract-btn")) {
+      return;
+    }
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastClickTimeRef.current;
+    if (timeDiff < 300) {
+      onSubtract();
+      onSubtract();
+      lastClickTimeRef.current = 0;
+    } else {
+      onAdd();
+      lastClickTimeRef.current = currentTime;
+    }
+  };
+
   return (
     <div
-      onClick={handleCardClick}
-      onMouseLeave={() => setActiveTouch(false)}
-      className={`sticker-card ${isOwned ? "owned" : ""} ${isSpecial ? "special" : ""} ${isDuplicate ? "duplicate" : ""} ${activeTouch ? "active-touch" : ""}`}
+      onClick={handleClick}
+      className={`sticker-card ${isOwned ? "owned" : ""} ${isSpecial ? "special" : ""} ${isDuplicate ? "duplicate" : ""}`}
       style={cardStyle}
     >
-      {/* Code prefix (top left) - Only shown for special categories (FWC / LEG) */}
-      <span className="sticker-code">{isSpecial ? prefix : ""}</span>
+      {/* Subtract button (top left) - Only shown when owned */}
+      {isOwned && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering onAdd click
+            onSubtract();
+          }}
+          className="sticker-card-subtract-btn"
+          title="Restar cromo"
+        >
+          <Minus size={10} strokeWidth={3} />
+        </button>
+      )}
+
+      {/* Code prefix (top left) - Only shown for special categories (FWC / LEG), shifted if subtract button is present */}
+      {isSpecial && (
+        <span 
+          className="sticker-code" 
+          style={{ 
+            position: "absolute", 
+            top: "8px", 
+            left: isOwned ? "30px" : "8px" 
+          }}
+        >
+          {prefix}
+        </span>
+      )}
       
       {/* Quantity badge (top right) */}
       {count > 0 && (
@@ -83,33 +123,6 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
       >
         {label}
       </span>
-
-      {/* Hover/Tap Overlay Controls */}
-      <div className="sticker-card-overlay">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (count > 0) onSubtract();
-          }}
-          className="overlay-btn btn-dec"
-          title="Restar cromo"
-          disabled={count === 0}
-          style={{ opacity: count === 0 ? 0.3 : 1, cursor: count === 0 ? "not-allowed" : "pointer" }}
-        >
-          <Minus size={16} />
-        </button>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdd();
-          }}
-          className="overlay-btn btn-inc"
-          title="Sumar cromo"
-        >
-          <Plus size={16} />
-        </button>
-      </div>
     </div>
   );
 }

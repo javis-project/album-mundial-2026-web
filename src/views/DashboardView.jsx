@@ -16,7 +16,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
   const groupsList = [
     { name: "Especiales FWC", label: "Especiales FWC", icon: Star },
     ...Object.keys(GROUPS).map(g => ({ name: g, label: g, icon: Trophy })),
-    { name: "Leyendas LEG", label: "Leyendas LEG", icon: Star }
+    { name: "Coca-Cola CC", label: "Coca-Cola CC", icon: Star }
   ];
 
   const groupProgresses = groupsList.map(grp => {
@@ -36,7 +36,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
     if (code.toLowerCase().includes(cleanQuery)) return true;
     
     // Check if country name contains search
-    if (!code.startsWith("FWC") && !code.startsWith("LEG")) {
+    if (code !== "00" && !code.startsWith("FWC") && !code.startsWith("CC")) {
       const prefix = code.slice(0, 3);
       const teamName = TEAM_NAMES[prefix] || "";
       if (teamName.toLowerCase().includes(cleanQuery)) return true;
@@ -62,7 +62,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
     <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
       {/* Welcome Banner with Creative Spinning Soccer Ball */}
       <div 
-        className="glass-panel" 
+        className="glass-panel dashboard-welcome-banner" 
         style={{ 
           padding: "30px", 
           background: "linear-gradient(135deg, rgba(223, 178, 59, 0.05) 0%, rgba(16, 18, 27, 0.7) 100%)",
@@ -71,8 +71,8 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
           overflow: "hidden"
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", gap: "20px" }}>
-          <div style={{ flexGrow: 1 }}>
+        <div className="welcome-banner-content" style={{ width: "100%" }}>
+          <div style={{ flexGrow: 1 }} className="welcome-banner-text">
             <h2 style={{ fontSize: "1.75rem", marginBottom: "8px", fontWeight: "700" }}>
               Panel del Coleccionista
             </h2>
@@ -80,7 +80,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
               Lleva el control total de tus cromos oficiales del Mundial 2026. Sincroniza tu progreso entre tu PC y tu dispositivo móvil mediante códigos de intercambio comprimidos.
             </p>
           </div>
-          <div style={{ marginRight: "10px" }}>
+          <div className="welcome-banner-ball">
             <SoccerBall size={55} />
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <h4 style={{ fontSize: "1.05rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <GrpIcon size={16} style={{ color: grp.name.includes("FWC") || grp.name.includes("LEG") ? "var(--gold)" : "var(--slate-light)" }} />
+                  <GrpIcon size={16} style={{ color: grp.name.includes("FWC") || grp.name.includes("CC") ? "var(--gold)" : "var(--slate-light)" }} />
                   {grp.label}
                 </h4>
                 <span style={{ fontSize: "0.85rem", fontFamily: "var(--mono)", color: "var(--gold)" }}>
@@ -153,7 +153,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
                     className="progress-bar" 
                     style={{ 
                       width: `${grp.stats.percentage}%`,
-                      background: grp.name.includes("FWC") || grp.name.includes("LEG") ? "var(--gold)" : "var(--slate-light)"
+                      background: grp.name.includes("FWC") || grp.name.includes("CC") ? "var(--gold)" : "var(--slate-light)"
                     }}
                   />
                 </div>
@@ -193,7 +193,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
             />
             <input
               type="text"
-              placeholder="Buscar repetida (ej. LEG3, ARG)..."
+              placeholder="Buscar repetida (ej. CC3, ARG)..."
               value={dupQuery}
               onChange={(e) => setDupQuery(e.target.value)}
               style={{ paddingLeft: "36px", paddingTop: "10px", paddingBottom: "10px" }}
@@ -204,7 +204,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
             {filteredDuplicates.length > 0 ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "10px" }}>
                 {filteredDuplicates.map(item => {
-                  const isSpecial = item.code.startsWith("FWC") || item.code.startsWith("LEG");
+                  const isSpecial = item.code === "00" || item.code.startsWith("FWC") || item.code.startsWith("CC");
                   return (
                     <div 
                       key={item.code} 
@@ -273,7 +273,7 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
             {filteredMissing.length > 0 ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(75px, 1fr))", gap: "8px" }}>
                 {filteredMissing.map(code => {
-                  const isSpecial = code.startsWith("FWC") || code.startsWith("LEG");
+                  const isSpecial = code === "00" || code.startsWith("FWC") || code.startsWith("CC");
                   return (
                     <button
                       key={code}

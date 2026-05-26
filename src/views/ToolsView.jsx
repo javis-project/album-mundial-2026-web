@@ -104,7 +104,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
       <div className="tools-grid">
         {/* Sync panel */}
         <div className="glass-panel tool-card">
-          <h3 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+          <h3 className="tool-card-title" style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
             <RefreshCw size={18} style={{ color: "var(--gold)" }} />
             Sincronización por Código (Cross-Platform)
           </h3>
@@ -120,7 +120,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
 
             <div style={{ borderTop: "1px solid var(--border-color)", margin: "10px 0" }}></div>
 
-            <h4 style={{ fontSize: "0.9rem", color: "var(--text-light)", fontWeight: "500", marginBottom: "6px" }}>
+            <h4 className="tools-section-title" style={{ fontSize: "0.9rem", color: "var(--text-light)", fontWeight: "500", marginBottom: "6px" }}>
               Importar Código de Intercambio
             </h4>
 
@@ -156,7 +156,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
 
         {/* Backups panel */}
         <div className="glass-panel tool-card">
-          <h3 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+          <h3 className="tool-card-title" style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
             <FileText size={18} style={{ color: "var(--gold)" }} />
             Copias de Seguridad (JSON)
           </h3>
@@ -202,16 +202,16 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
       </div>
 
       {/* Danger Zone panel */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
-        <h3 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", color: "#f87171", display: "flex", alignItems: "center", gap: "8px" }}>
+      <div className="glass-panel danger-zone-panel" style={{ padding: "24px" }}>
+        <h3 className="danger-zone-header" style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", color: "#f87171", display: "flex", alignItems: "center", gap: "8px" }}>
           <AlertTriangle size={18} />
           Zona Peligrosa
         </h3>
-        <p style={{ fontSize: "0.85rem", color: "var(--slate-text)", marginBottom: "20px" }}>
+        <p className="danger-zone-desc" style={{ fontSize: "0.85rem", color: "var(--slate-text)", marginBottom: "20px" }}>
           Acción crítica de vaciado. Si necesitas borrar todo el progreso actual para iniciar de cero.
         </p>
 
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="danger-zone-actions" style={{ display: "flex", alignItems: "center" }}>
           {/* Reset Album */}
           {!showConfirmReset ? (
             <button 
@@ -222,7 +222,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
               Reiniciar Álbum
             </button>
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <div className="danger-zone-confirm" style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.85rem", color: "#f87171", fontWeight: "500" }}>
                 ¿Confirmas borrar TODO tu progreso?
               </span>

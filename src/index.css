@@ -565,6 +565,11 @@ textarea::placeholder {
   flex-direction: column;
   justify-content: space-between;
   padding: 12px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Missing Card Hover: slight highlight */
@@ -573,6 +578,11 @@ textarea::placeholder {
   border-color: rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.02);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+.sticker-card:active {
+  transform: scale(0.96) translateY(-2px);
+  transition: transform 0.08s ease;
 }
 
 /* Obtained Team Card: Solid silver/slate metallic gradient */
@@ -712,52 +722,34 @@ textarea::placeholder {
   box-shadow: 0 0 12px rgba(223, 178, 59, 0.25), 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Overlay Controls on Card */
-.sticker-card-overlay {
+/* Direct Subtract Button in Top-Left of Card */
+.sticker-card-subtract-btn {
   position: absolute;
-  inset: 0;
-  background: rgba(6, 8, 12, 0.9);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  z-index: 10;
-  border-radius: var(--radius-sm);
-}
-
-.sticker-card:hover .sticker-card-overlay,
-.sticker-card.active-touch .sticker-card-overlay {
-  opacity: 1;
-}
-
-.overlay-btn {
-  width: 36px;
-  height: 36px;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-light);
+  background: rgba(239, 68, 68, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.overlay-btn:hover {
-  background: var(--gold);
-  color: #06080c;
-  border-color: var(--gold-bright);
-  transform: scale(1.1);
+.sticker-card-subtract-btn:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
 }
 
-.overlay-btn.btn-dec:hover {
-  background: #f87171;
-  color: #06080c;
-  border-color: #ef4444;
+.sticker-card-subtract-btn:active {
+  transform: scale(0.95);
 }
 
 /* ========================================== */
@@ -815,6 +807,28 @@ textarea::placeholder {
   gap: 12px;
   margin-top: 15px;
   margin-bottom: 25px;
+}
+
+.trade-share-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-top: 15px;
+  gap: 16px;
+}
+
+.trade-share-info {
+  flex-grow: 1;
+}
+
+.friend-stats-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .trade-list-container {
@@ -941,6 +955,14 @@ textarea::placeholder {
   border-color: var(--gold-bright);
 }
 
+.mobile-only-group-select {
+  display: none;
+}
+
+.desktop-only-tabs {
+  display: flex;
+}
+
 /* RESPONSIVE BREAKPOINTS */
 @media (max-width: 992px) {
   .dashboard-grid {
@@ -1019,6 +1041,117 @@ textarea::placeholder {
     width: 18px;
     height: 18px;
     font-size: 0.65rem;
+  }
+
+  .sticker-card-subtract-btn {
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Responsive toggles for group tabs and select menu */
+  .mobile-only-group-select {
+    display: block;
+    width: 100%;
+  }
+
+  .desktop-only-tabs {
+    display: none !important;
+  }
+
+  /* Filter centering and full-width */
+  .sticker-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sticker-filters > div {
+    max-width: 100% !important;
+    width: 100%;
+  }
+
+  .segmented-control {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .segmented-control-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 0.8rem;
+  }
+
+  /* Trade View centering */
+  .trade-share-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .trade-share-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .trade-compare-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .friend-stats-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .friend-stats-banner > div {
+    text-align: center !important;
+  }
+
+  /* Tools View centering */
+  .tool-card {
+    text-align: center;
+  }
+
+  .tool-card-title {
+    justify-content: center !important;
+  }
+
+  .tools-section-title {
+    text-align: center !important;
+  }
+
+  /* Danger Zone centering */
+  .danger-zone-panel {
+    text-align: center;
+  }
+
+  .danger-zone-header {
+    justify-content: center !important;
+  }
+
+  .danger-zone-actions {
+    justify-content: center !important;
+  }
+
+  .danger-zone-confirm {
+    justify-content: center !important;
+  }
+
+  /* Dashboard Welcome Banner centering */
+  .welcome-banner-content {
+    flex-direction: column-reverse;
+    text-align: center;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .welcome-banner-ball {
+    margin: 0 auto !important;
   }
 }
 

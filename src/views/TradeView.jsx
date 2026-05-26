@@ -89,20 +89,8 @@ export default function TradeView({ state }) {
         </p>
         
         {/* User Code Sharing Card */}
-        <div 
-          style={{ 
-            background: "rgba(223, 178, 59, 0.04)", 
-            border: "1px solid rgba(223, 178, 59, 0.15)",
-            padding: "16px",
-            borderRadius: "var(--radius-sm)",
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px"
-          }}
-        >
-          <div>
+        <div className="trade-share-card">
+          <div className="trade-share-info">
             <h4 style={{ fontSize: "0.95rem", color: "var(--gold)", fontWeight: "600", marginBottom: "3px" }}>
               ¿Quieres compartir tu progreso?
             </h4>
@@ -110,7 +98,7 @@ export default function TradeView({ state }) {
               Copia tu código comprimido para enviárselo a tu amigo.
             </p>
           </div>
-          <button className="btn btn-primary" onClick={handleCopyCode} style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
+          <button className="btn btn-primary trade-share-btn" onClick={handleCopyCode}>
             {isCopied ? <Check size={16} /> : <Copy size={16} />}
             {isCopied ? "¡Copiado!" : "Copiar Mi Código"}
           </button>
@@ -143,9 +131,8 @@ export default function TradeView({ state }) {
             }}
           />
           <button 
-            className="btn btn-primary" 
+            className="btn btn-primary trade-compare-btn" 
             onClick={handleCompare}
-            style={{ alignSelf: "flex-end", minWidth: "150px" }}
           >
             <ArrowLeftRight size={18} />
             Comparar Álbumes
@@ -159,12 +146,9 @@ export default function TradeView({ state }) {
           {/* Friend stats summary banner */}
           {friendStats && (
             <div 
-              className="glass-panel" 
+              className="glass-panel friend-stats-banner" 
               style={{ 
                 padding: "20px", 
-                display: "flex", 
-                justifyContent: "space-between", 
-                alignItems: "center",
                 background: "rgba(255,255,255,0.015)" 
               }}
             >
