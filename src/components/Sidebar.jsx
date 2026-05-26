@@ -15,12 +15,9 @@ export default function Navigation({ activeTab, setActiveTab }) {
       {/* Desktop Sidebar Layout */}
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-logo-glow" style={{ background: "transparent", boxShadow: "none" }}>
-            <SoccerBall size={32} />
-          </div>
           <div>
-            <h1 className="sidebar-title">Álbum 2026</h1>
-            <span style={{ fontSize: "0.75rem", color: "var(--slate-light)" }}>
+            <h1 className="sidebar-title">Álbum Mundial 2026</h1>
+            <span style={{ fontSize: "0.8rem", color: "var(--slate-light)" }}>
               Premium Collector
             </span>
           </div>

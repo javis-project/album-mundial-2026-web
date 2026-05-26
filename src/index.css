@@ -267,32 +267,17 @@ textarea::placeholder {
 }
 
 .sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   margin-bottom: 35px;
 }
 
-.sidebar-logo-glow {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
-  box-shadow: var(--shadow-gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #06080c;
-  font-weight: 700;
-  font-size: 1.15rem;
-}
-
 .sidebar-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  background: linear-gradient(to right, #ffffff, #eab308);
+  font-size: 1.55rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #ffffff, #ffd700);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
 .sidebar-menu {
