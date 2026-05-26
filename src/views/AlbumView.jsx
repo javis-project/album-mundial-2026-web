@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from "react";
-import { Search, Filter, BookOpen } from "lucide-react";
+import { Search, BookOpen } from "lucide-react";
 import StickerCard from "../components/StickerCard";
-import { GROUPS, TEAM_NAMES, STICKER_CODES } from "../core/constants";
+import { GROUPS, TEAM_NAMES, TEAM_EMOJIS, TEAM_COLORS, STICKER_CODES } from "../core/constants";
 
-export default function AlbumView({ state, onAddSticker, onSubtractSticker }) {
-  const [activeGroup, setActiveGroup] = useState("Especiales FWC");
+export default function AlbumView({ state, onAddSticker, onSubtractSticker, activeGroup, setActiveGroup }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'missing', 'owned', 'duplicates'
 
@@ -61,24 +60,27 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker }) {
   const groupedSections = useMemo(() => {
     if (searchQuery.trim() !== "") {
       // Render as a single unified search result block
-      return [{ id: "search_results", title: "Resultados de la Búsqueda", codes: filteredStickers }];
+      return [{ id: "search_results", title: "🔎 Resultados de la Búsqueda", codes: filteredStickers }];
     }
 
     if (activeGroup === "Especiales FWC") {
-      return [{ id: "fwc", title: "Cromos Especiales FWC", codes: filteredStickers }];
+      return [{ id: "fwc", title: "⭐ Cromos Especiales FWC", codes: filteredStickers, colors: ["#dfb23b", "#ffd700"] }];
     }
 
     if (activeGroup === "Leyendas LEG") {
-      return [{ id: "leg", title: "Leyendas de la Copa del Mundo", codes: filteredStickers }];
+      return [{ id: "leg", title: "🏆 Leyendas de la Copa del Mundo", codes: filteredStickers, colors: ["#dfb23b", "#9c7c25"] }];
     }
 
     // Render by teams in the selected group
     const teams = GROUPS[activeGroup] || [];
     return teams.map((teamCode) => {
       const teamCodes = filteredStickers.filter((c) => c.startsWith(teamCode));
+      const emoji = TEAM_EMOJIS[teamCode] || "⚽";
+      const colors = TEAM_COLORS[teamCode] || ["#334155", "#475569"];
       return {
         id: teamCode,
-        title: `${TEAM_NAMES[teamCode] || teamCode} (${teamCode})`,
+        title: `${emoji} ${TEAM_NAMES[teamCode] || teamCode} (${teamCode})`,
+        colors,
         codes: teamCodes,
         stats: {
           collected: teamCodes.filter((c) => state[c] > 0).length,
@@ -114,25 +116,38 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker }) {
             />
           </div>
 
-          {/* Status filter dropdown */}
-          <div className="filter-group">
-            <Filter size={18} style={{ color: "var(--slate-light)" }} />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ width: "200px" }}
+          {/* Premium Segmented Controls replacing the old ugly select dropdown (Image 1 fix) */}
+          <div className="segmented-control">
+            <button
+              className={`segmented-control-btn ${statusFilter === "all" ? "active" : ""}`}
+              onClick={() => setStatusFilter("all")}
             >
-              <option value="all">Todos los Cromos</option>
-              <option value="missing">Faltantes</option>
-              <option value="owned">Pegados</option>
-              <option value="duplicates">Repetidos</option>
-            </select>
+              Todas
+            </button>
+            <button
+              className={`segmented-control-btn ${statusFilter === "owned" ? "active" : ""}`}
+              onClick={() => setStatusFilter("owned")}
+            >
+              Tengo
+            </button>
+            <button
+              className={`segmented-control-btn ${statusFilter === "missing" ? "active" : ""}`}
+              onClick={() => setStatusFilter("missing")}
+            >
+              Me Faltan
+            </button>
+            <button
+              className={`segmented-control-btn ${statusFilter === "duplicates" ? "active" : ""}`}
+              onClick={() => setStatusFilter("duplicates")}
+            >
+              Repetidas
+            </button>
           </div>
         </div>
 
         {/* Group Tabs (hidden if searching) */}
         {searchQuery.trim() === "" && (
-          <div className="group-tabs">
+          <div className="group-tabs" style={{ marginTop: "15px" }}>
             {groupTabs.map((tab) => (
               <button
                 key={tab}
@@ -152,13 +167,42 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker }) {
           if (section.codes.length === 0) return null;
           
           return (
-            <div key={section.id} className="team-section">
+            <div 
+              key={section.id} 
+              className="team-section"
+              style={{
+                borderLeft: section.colors 
+                  ? `4px solid ${section.colors[0]}` 
+                  : "1px solid var(--border-color)",
+                boxShadow: section.colors
+                  ? `inset 5px 0 10px -5px ${section.colors[0]}15`
+                  : "none"
+              }}
+            >
               <div className="team-header">
                 <h3 className="team-title">{section.title}</h3>
                 {section.stats && (
-                  <span className="team-progress-text">
-                    Pegados: {section.stats.collected} / {section.stats.total}
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <span className="team-progress-text">
+                      Pegados: {section.stats.collected} / {section.stats.total}
+                    </span>
+                    {section.colors && (
+                      <div 
+                        style={{ 
+                          display: "flex", 
+                          gap: "2px", 
+                          height: "3px", 
+                          width: "45px", 
+                          borderRadius: "1.5px", 
+                          overflow: "hidden", 
+                          marginTop: "6px" 
+                        }}
+                      >
+                        <div style={{ background: section.colors[0], flex: 1 }}></div>
+                        <div style={{ background: section.colors[1] || section.colors[0], flex: 1 }}></div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
               

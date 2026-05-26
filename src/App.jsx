@@ -8,6 +8,7 @@ import { loadState, saveState, resetState, fillRandomly } from "./core/dataManag
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeGroup, setActiveGroup] = useState("Especiales FWC");
   const [albumState, setAlbumState] = useState(() => loadState());
 
   // Automatically save state when it changes
@@ -57,6 +58,10 @@ export default function App() {
         return (
           <DashboardView
             state={albumState}
+            onNavigateToGroup={(groupName) => {
+              setActiveGroup(groupName);
+              setActiveTab("album");
+            }}
             onNavigateToAlbum={() => setActiveTab("album")}
             onFillRandom={handleFillRandomly}
             onAddSticker={handleAddSticker}
@@ -66,6 +71,8 @@ export default function App() {
         return (
           <AlbumView
             state={albumState}
+            activeGroup={activeGroup}
+            setActiveGroup={setActiveGroup}
             onAddSticker={handleAddSticker}
             onSubtractSticker={handleSubtractSticker}
           />
@@ -85,8 +92,13 @@ export default function App() {
         return (
           <DashboardView
             state={albumState}
+            onNavigateToGroup={(groupName) => {
+              setActiveGroup(groupName);
+              setActiveTab("album");
+            }}
             onNavigateToAlbum={() => setActiveTab("album")}
             onFillRandom={handleFillRandomly}
+            onAddSticker={handleAddSticker}
           />
         );
     }

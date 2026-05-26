@@ -4,7 +4,7 @@ import MetricCard from "../components/MetricCard";
 import { getStats, getGroupStats, getMissingList, getDuplicatesList } from "../core/dataManager";
 import { GROUPS, TEAM_NAMES } from "../core/constants";
 
-export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, onAddSticker }) {
+export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, onAddSticker, onNavigateToGroup }) {
   const stats = getStats(state);
   
   // State for search queries in the dashboard panels
@@ -115,7 +115,11 @@ export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, 
         {groupProgresses.map((grp) => {
           const GrpIcon = grp.icon;
           return (
-            <div key={grp.name} className="glass-panel bento-card">
+            <div 
+              key={grp.name} 
+              className="glass-panel bento-card"
+              onClick={() => onNavigateToGroup(grp.name)}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <h4 style={{ fontSize: "1.05rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
                   <GrpIcon size={16} style={{ color: grp.name.includes("FWC") || grp.name.includes("LEG") ? "var(--gold)" : "var(--slate-light)" }} />

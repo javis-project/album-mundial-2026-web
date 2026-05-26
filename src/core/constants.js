@@ -60,6 +60,72 @@ export const TEAM_NAMES = {
     "ENG": "Inglaterra", "CRO": "Croacia", "GHA": "Ghana", "PAN": "Panamá"
 };
 
+export const TEAM_EMOJIS = {
+    "MEX": "🇲🇽", "RSA": "🇿🇦", "KOR": "🇰🇷", "CZE": "🇨🇿",
+    "CAN": "🇨🇦", "BIH": "🇧🇦", "QAT": "🇶🇦", "SUI": "🇨🇭",
+    "BRA": "🇧🇷", "MAR": "🇲🇦", "HAI": "🇭🇹", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "USA": "🇺🇸", "PAR": "🇵🇾", "AUS": "🇦🇺", "TUR": "🇹🇷",
+    "GER": "🇩🇪", "CUW": "🇨🇼", "CIV": "🇨🇮", "ECU": "🇪🇨",
+    "NED": "🇳🇱", "JPN": "🇯🇵", "SWE": "🇸🇪", "TUN": "🇹🇳",
+    "BEL": "🇧🇪", "EGY": "🇪🇬", "IRN": "🇮🇷", "NZL": "🇳🇿",
+    "ESP": "🇪🇸", "CPV": "🇨🇻", "KSA": "🇸🇦", "URU": "🇺🇾",
+    "FRA": "🇫🇷", "SEN": "🇸🇳", "NOR": "🇳🇴", "IRQ": "🇮🇶",
+    "ARG": "🇦🇷", "ALG": "🇩🇿", "AUT": "🇦🇹", "JOR": "🇯🇴",
+    "POR": "🇵🇹", "COD": "🇨🇩", "UZB": "🇺🇿", "COL": "🇨🇴",
+    "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "CRO": "🇭🇷", "GHA": "🇬🇭", "PAN": "🇵🇦"
+};
+
+export const TEAM_COLORS = {
+    "MEX": ["#006847", "#C8102E"], // Verde y Rojo
+    "RSA": ["#007A4D", "#FFB81C"], // Verde y Oro
+    "KOR": ["#CD113B", "#0F4C81"], // Rojo y Azul
+    "CZE": ["#11457E", "#D91E36"], // Azul y Rojo
+    "CAN": ["#FF0000", "#FFFFFF"], // Rojo y Blanco
+    "BIH": ["#002F6C", "#FECB00"], // Azul y Amarillo
+    "QAT": ["#8A1538", "#FFFFFF"], // Granate y Blanco
+    "SUI": ["#DA291C", "#FFFFFF"], // Rojo y Blanco
+    "BRA": ["#FECB00", "#009739"], // Amarillo y Verde
+    "MAR": ["#C1272D", "#006233"], // Rojo y Verde
+    "HAI": ["#00209F", "#D21034"], // Azul y Rojo
+    "SCO": ["#0065BF", "#FFFFFF"], // Azul y Blanco
+    "USA": ["#002868", "#BF0A30"], // Azul y Rojo
+    "PAR": ["#D52B1E", "#0038A8"], // Rojo y Azul
+    "AUS": ["#FFCD00", "#00843D"], // Oro y Verde
+    "TUR": ["#E30A17", "#FFFFFF"], // Rojo y Blanco
+    "GER": ["#000000", "#FFCC00"], // Negro y Oro
+    "CUW": ["#002B7F", "#F9E316"], // Azul y Amarillo
+    "CIV": ["#FF8200", "#009E60"], // Naranja y Verde
+    "ECU": ["#FFDD00", "#032D74"], // Amarillo y Azul
+    "NED": ["#FF4F00", "#21468B"], // Naranja y Azul
+    "JPN": ["#0005CB", "#FF0000"], // Azul Samurái y Rojo
+    "SWE": ["#006AA7", "#FECC00"], // Azul y Amarillo
+    "TUN": ["#E20917", "#FFFFFF"], // Rojo y Blanco
+    "BEL": ["#E30613", "#FFCC00"], // Rojo y Amarillo
+    "EGY": ["#C8102E", "#000000"], // Rojo y Negro
+    "IRN": ["#239F40", "#DA0000"], // Verde y Rojo
+    "NZL": ["#FFFFFF", "#000000"], // Blanco y Negro (All Blacks)
+    "ESP": ["#C60B1E", "#FFC400"], // Rojo y Oro
+    "CPV": ["#002A8F", "#CE1126"], // Azul y Rojo
+    "KSA": ["#006C35", "#FFFFFF"], // Verde y Blanco
+    "URU": ["#00A6EF", "#FFFFFF"], // Celeste y Blanco
+    "FRA": ["#002395", "#ED2939"], // Azul y Rojo
+    "SEN": ["#00853F", "#E31B23"], // Verde y Rojo
+    "NOR": ["#BA0C2F", "#00205B"], // Rojo y Azul
+    "IRQ": ["#CE1126", "#007A3D"], // Rojo y Verde
+    "ARG": ["#75AADB", "#FFFFFF"], // Celeste y Blanco
+    "ALG": ["#006633", "#D21034"], // Verde y Rojo
+    "AUT": ["#ED2939", "#FFFFFF"], // Rojo y Blanco
+    "JOR": ["#E0162B", "#000000"], // Rojo y Negro
+    "POR": ["#DA121A", "#114511"], // Rojo y Verde
+    "COD": ["#007FFF", "#F7D117"], // Azul y Amarillo
+    "UZB": ["#00A9E0", "#1EB53A"], // Celeste y Verde
+    "COL": ["#FCD116", "#003893"], // Amarillo y Azul
+    "ENG": ["#CE1124", "#FFFFFF"], // Blanco y Rojo (St George)
+    "CRO": ["#FF0000", "#002F6C"], // Rojo y Azul (Tablero ajedrez)
+    "GHA": ["#FCD116", "#006B3F"], // Amarillo y Verde
+    "PAN": ["#005293", "#D21034"]  // Azul y Rojo
+};
+
 export const GROUPS = {
     "Grupo A": ["MEX", "RSA", "KOR", "CZE"],
     "Grupo B": ["CAN", "BIH", "QAT", "SUI"],

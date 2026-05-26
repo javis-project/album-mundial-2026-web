@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Minus } from "lucide-react";
+import { TEAM_NAMES } from "../core/constants";
 
 export default function StickerCard({ code, count, onAdd, onSubtract }) {
   const [activeTouch, setActiveTouch] = useState(false);
@@ -7,8 +8,35 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
   const isOwned = count > 0;
   const isDuplicate = count > 1;
 
+  // Split and format the code (e.g., "FWC15" -> FWC, 15, Copa Mundial)
+  const parseCode = (stickerCode) => {
+    if (stickerCode.startsWith("FWC")) {
+      return {
+        prefix: "FWC",
+        num: stickerCode.replace("FWC", ""),
+        label: "Copa Mundial"
+      };
+    }
+    if (stickerCode.startsWith("LEG")) {
+      return {
+        prefix: "LEG",
+        num: stickerCode.replace("LEG", ""),
+        label: "Leyendas"
+      };
+    }
+    const prefix = stickerCode.slice(0, 3);
+    const num = stickerCode.slice(3);
+    return {
+      prefix,
+      num,
+      label: TEAM_NAMES[prefix] || prefix
+    };
+  };
+
+  const { prefix, num, label } = parseCode(code);
+
   const handleCardClick = (e) => {
-    // If clicking the buttons, don't do anything here
+    // If clicking overlays buttons, skip toggle
     if (e.target.closest(".overlay-btn")) {
       return;
     }
@@ -21,33 +49,27 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
       onMouseLeave={() => setActiveTouch(false)}
       className={`sticker-card ${isOwned ? "owned" : ""} ${isSpecial ? "special" : ""} ${isDuplicate ? "duplicate" : ""} ${activeTouch ? "active-touch" : ""}`}
     >
-      {/* Code */}
-      <span className="sticker-code">{code}</span>
+      {/* Code prefix (top left) */}
+      <span className="sticker-code">{prefix}</span>
       
-      {/* Quantity badge */}
+      {/* Quantity badge (top right) */}
       {count > 0 && (
         <div className="sticker-qty-badge">
           {count}
         </div>
       )}
 
-      {/* Card center decoration */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexGrow: 1, margin: "6px 0" }}>
-        {isSpecial ? (
-          <span style={{ fontSize: "1.1rem", filter: "drop-shadow(0 0 5px var(--gold-glow))" }}>⭐</span>
-        ) : (
-          <span style={{ fontSize: "0.85rem", color: "var(--slate-light)" }}>⚽</span>
-        )}
+      {/* Large sticker number in the center (Image 2 style) */}
+      <div className="sticker-number">
+        {num}
       </div>
 
-      {/* Card category display */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "0.65rem", color: "var(--slate-text)" }}>
-          {isSpecial ? (code.startsWith("LEG") ? "LEYENDA" : "FWC") : "COMÚN"}
-        </span>
-      </div>
+      {/* Card category display (bottom label) */}
+      <span className="sticker-label">
+        {label}
+      </span>
 
-      {/* Overlay controls */}
+      {/* Hover/Tap Overlay Controls */}
       <div className="sticker-card-overlay">
         <button
           onClick={(e) => {
