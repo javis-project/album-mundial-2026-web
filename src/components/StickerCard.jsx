@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Minus } from "lucide-react";
-import { TEAM_NAMES } from "../core/constants";
+import { TEAM_NAMES, TEAM_COLORS } from "../core/constants";
 
 export default function StickerCard({ code, count, onAdd, onSubtract }) {
   const [activeTouch, setActiveTouch] = useState(false);
@@ -34,6 +34,8 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
   };
 
   const { prefix, num, label } = parseCode(code);
+  const colors = TEAM_COLORS[prefix] || ["#334155", "#475569"];
+  const primaryColor = colors[0];
 
   const handleCardClick = (e) => {
     // If clicking overlays buttons, skip toggle
@@ -43,11 +45,18 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
     setActiveTouch(!activeTouch);
   };
 
+  const cardStyle = isOwned && !isSpecial ? {
+    background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}c0 60%, #0c0f16 100%)`,
+    borderColor: primaryColor,
+    boxShadow: `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px ${primaryColor}30`,
+  } : {};
+
   return (
     <div
       onClick={handleCardClick}
       onMouseLeave={() => setActiveTouch(false)}
       className={`sticker-card ${isOwned ? "owned" : ""} ${isSpecial ? "special" : ""} ${isDuplicate ? "duplicate" : ""} ${activeTouch ? "active-touch" : ""}`}
+      style={cardStyle}
     >
       {/* Code prefix (top left) - Only shown for special categories (FWC / LEG) */}
       <span className="sticker-code">{isSpecial ? prefix : ""}</span>
@@ -60,12 +69,18 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
       )}
 
       {/* Large sticker number in the center (Image 2 style) */}
-      <div className="sticker-number">
+      <div 
+        className="sticker-number"
+        style={isOwned && !isSpecial ? { color: "#ffffff", textShadow: "0 2px 5px rgba(0,0,0,0.85)" } : {}}
+      >
         {num}
       </div>
 
       {/* Card category display (bottom label) */}
-      <span className="sticker-label">
+      <span 
+        className="sticker-label"
+        style={isOwned && !isSpecial ? { color: "rgba(255, 255, 255, 0.9)", textShadow: "0 1px 3px rgba(0,0,0,0.85)" } : {}}
+      >
         {label}
       </span>
 

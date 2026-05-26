@@ -190,17 +190,17 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                 <div 
                   className="team-bg-flag"
                   style={{
-                    backgroundImage: `url(https://flagcdn.com/w320/${section.iso2}.png)`,
+                    backgroundImage: `url(https://flagcdn.com/w640/${section.iso2}.png)`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    opacity: 0.038,
+                    opacity: 0.025,
                     pointerEvents: "none",
                     zIndex: 0,
-                    width: "320px",
-                    height: "210px",
                     position: "absolute",
-                    bottom: "-20px",
-                    right: "-20px",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
                     filter: "blur(1px)"
                   }}
                 />
