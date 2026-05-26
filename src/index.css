@@ -489,6 +489,15 @@ textarea::placeholder {
   box-shadow: 0 0 10px rgba(223, 178, 59, 0.4);
 }
 
+/* Welcome Banner Content */
+.welcome-banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 20px;
+}
+
 /* Bento Grid */
 .bento-grid {
   display: grid;
