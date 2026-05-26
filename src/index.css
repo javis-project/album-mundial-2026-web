@@ -624,11 +624,16 @@ textarea::placeholder {
 
 /* Sticker Code */
 .sticker-code {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--mono);
   font-size: 0.8rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.35); /* Faint gray for missing codes */
   transition: color 0.2s;
+  z-index: 4;
 }
 
 .sticker-card.owned .sticker-code {

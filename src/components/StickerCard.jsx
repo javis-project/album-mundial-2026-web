@@ -76,16 +76,9 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
         </button>
       )}
 
-      {/* Code prefix (top left) - Only shown for special categories (FWC / LEG), shifted if subtract button is present */}
+      {/* Code prefix (top center) - Only shown for special categories (FWC / CC) */}
       {isSpecial && (
-        <span 
-          className="sticker-code" 
-          style={{ 
-            position: "absolute", 
-            top: "8px", 
-            left: isOwned ? "30px" : "8px" 
-          }}
-        >
+        <span className="sticker-code">
           {prefix}
         </span>
       )}
