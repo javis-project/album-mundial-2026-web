@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Search, BookOpen } from "lucide-react";
 import StickerCard from "../components/StickerCard";
 import SoccerBall from "../components/SoccerBall";
-import { GROUPS, TEAM_NAMES, FIFA_TO_ISO2, STICKER_CODES } from "../core/constants";
+import { GROUPS, TEAM_NAMES, FIFA_TO_ISO2, TEAM_COLORS, STICKER_CODES } from "../core/constants";
 
 export default function AlbumView({ state, onAddSticker, onSubtractSticker, activeGroup, setActiveGroup }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,10 +77,12 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
     return teams.map((teamCode) => {
       const teamCodes = filteredStickers.filter((c) => c.startsWith(teamCode));
       const iso2 = FIFA_TO_ISO2[teamCode];
+      const colors = TEAM_COLORS[teamCode] || ["#334155", "#475569"];
       return {
         id: teamCode,
         title: `${TEAM_NAMES[teamCode] || teamCode} (${teamCode})`, // Restored abbreviation after the name
         iso2,
+        colors, // Fixed: Returned colors so background gradient and left border lines work
         codes: teamCodes,
         stats: {
           collected: teamCodes.filter((c) => state[c] > 0).length,
@@ -166,7 +168,7 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
         {groupedSections.map((section) => {
           if (section.codes.length === 0) return null;
           
-          const teamColors = section.colors || (section.id ? [] : (FIFA_TO_ISO2[section.id] ? ["#334155", "#475569"] : []));
+          const teamColors = section.colors || [];
           const primaryColor = teamColors[0] || "rgba(255,255,255,0.06)";
           const secondaryColor = teamColors[1] || primaryColor;
           
@@ -175,9 +177,9 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
               key={section.id} 
               className="team-section"
               style={{
-                borderLeft: `4px solid ${primaryColor}`,
-                background: `linear-gradient(135deg, ${primaryColor}12 0%, rgba(10, 12, 18, 0.4) 60%, rgba(5, 7, 10, 0.95) 100%)`,
-                boxShadow: `0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px ${primaryColor}08`,
+                borderLeft: `5px solid ${primaryColor}`,
+                background: `linear-gradient(135deg, ${primaryColor}1b 0%, ${secondaryColor}08 40%, rgba(10, 12, 18, 0.5) 75%, rgba(6, 8, 12, 0.95) 100%)`,
+                boxShadow: `0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px ${primaryColor}0c`,
                 padding: "24px",
                 position: "relative",
                 overflow: "hidden"
@@ -193,9 +195,36 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                     backgroundPosition: "center",
                     opacity: 0.038,
                     pointerEvents: "none",
-                    zIndex: 0
+                    zIndex: 0,
+                    width: "320px",
+                    height: "210px",
+                    position: "absolute",
+                    bottom: "-20px",
+                    right: "-20px",
+                    filter: "blur(1px)"
                   }}
                 />
+              )}
+
+              {/* Point 1: Large faint country abbreviation letters in bottom right */}
+              {section.id && (
+                <div 
+                  style={{
+                    position: "absolute",
+                    bottom: "-15px",
+                    right: "-5px",
+                    fontSize: "14rem",
+                    fontWeight: "900",
+                    fontFamily: "var(--mono)",
+                    color: "rgba(255, 255, 255, 0.035)",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                    userSelect: "none",
+                    lineHeight: 0.85
+                  }}
+                >
+                  {section.id.toUpperCase()}
+                </div>
               )}
 
               {/* National Team Banner Header */}
