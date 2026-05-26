@@ -49,8 +49,8 @@ export default function StickerCard({ code, count, onAdd, onSubtract }) {
       onMouseLeave={() => setActiveTouch(false)}
       className={`sticker-card ${isOwned ? "owned" : ""} ${isSpecial ? "special" : ""} ${isDuplicate ? "duplicate" : ""} ${activeTouch ? "active-touch" : ""}`}
     >
-      {/* Code prefix (top left) */}
-      <span className="sticker-code">{prefix}</span>
+      {/* Code prefix (top left) - Only shown for special categories (FWC / LEG) */}
+      <span className="sticker-code">{isSpecial ? prefix : ""}</span>
       
       {/* Quantity badge (top right) */}
       {count > 0 && (

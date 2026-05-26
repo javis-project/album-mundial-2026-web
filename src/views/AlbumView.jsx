@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { Search, BookOpen } from "lucide-react";
 import StickerCard from "../components/StickerCard";
-import { GROUPS, TEAM_NAMES, TEAM_EMOJIS, TEAM_COLORS, STICKER_CODES } from "../core/constants";
+import SoccerBall from "../components/SoccerBall";
+import { GROUPS, TEAM_NAMES, FIFA_TO_ISO2, STICKER_CODES } from "../core/constants";
 
 export default function AlbumView({ state, onAddSticker, onSubtractSticker, activeGroup, setActiveGroup }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,28 +61,26 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
   const groupedSections = useMemo(() => {
     if (searchQuery.trim() !== "") {
       // Render as a single unified search result block
-      return [{ id: "search_results", title: "Resultados de la Búsqueda", emoji: "🔎", codes: filteredStickers }];
+      return [{ id: "search_results", title: "Resultados de la Búsqueda", isSearch: true, codes: filteredStickers }];
     }
 
     if (activeGroup === "Especiales FWC") {
-      return [{ id: "fwc", title: "Cromos Especiales FWC", emoji: "⭐", codes: filteredStickers, colors: ["#dfb23b", "#ffd700"] }];
+      return [{ id: "fwc", title: "Cromos Especiales FWC", isFWC: true, codes: filteredStickers, colors: ["#dfb23b", "#ffd700"] }];
     }
 
     if (activeGroup === "Leyendas LEG") {
-      return [{ id: "leg", title: "Leyendas de la Copa del Mundo", emoji: "🏆", codes: filteredStickers, colors: ["#dfb23b", "#9c7c25"] }];
+      return [{ id: "leg", title: "Leyendas de la Copa del Mundo", isLEG: true, codes: filteredStickers, colors: ["#dfb23b", "#9c7c25"] }];
     }
 
-    // Render by teams in the selected group (Removing code suffix BR, MX in headers as requested)
+    // Render by teams in the selected group (Brought back the (NED), (MEX) suffix code as requested)
     const teams = GROUPS[activeGroup] || [];
     return teams.map((teamCode) => {
       const teamCodes = filteredStickers.filter((c) => c.startsWith(teamCode));
-      const emoji = TEAM_EMOJIS[teamCode] || "⚽";
-      const colors = TEAM_COLORS[teamCode] || ["#334155", "#475569"];
+      const iso2 = FIFA_TO_ISO2[teamCode];
       return {
         id: teamCode,
-        title: `${TEAM_NAMES[teamCode] || teamCode}`, // Removed the (ARG), (MEX) parentheses prefix
-        emoji,
-        colors,
+        title: `${TEAM_NAMES[teamCode] || teamCode} (${teamCode})`, // Restored abbreviation after the name
+        iso2,
         codes: teamCodes,
         stats: {
           collected: teamCodes.filter((c) => state[c] > 0).length,
@@ -167,8 +166,9 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
         {groupedSections.map((section) => {
           if (section.codes.length === 0) return null;
           
-          const primaryColor = section.colors ? section.colors[0] : "rgba(255,255,255,0.06)";
-          const secondaryColor = section.colors ? (section.colors[1] || section.colors[0]) : "rgba(255,255,255,0.06)";
+          const teamColors = section.colors || (section.id ? [] : (FIFA_TO_ISO2[section.id] ? ["#334155", "#475569"] : []));
+          const primaryColor = teamColors[0] || "rgba(255,255,255,0.06)";
+          const secondaryColor = teamColors[1] || primaryColor;
           
           return (
             <div 
@@ -176,18 +176,26 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
               className="team-section"
               style={{
                 borderLeft: `4px solid ${primaryColor}`,
-                background: `linear-gradient(135deg, ${primaryColor}10 0%, rgba(10, 12, 18, 0.4) 60%, rgba(5, 7, 10, 0.95) 100%)`,
+                background: `linear-gradient(135deg, ${primaryColor}12 0%, rgba(10, 12, 18, 0.4) 60%, rgba(5, 7, 10, 0.95) 100%)`,
                 boxShadow: `0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px ${primaryColor}08`,
                 padding: "24px",
                 position: "relative",
                 overflow: "hidden"
               }}
             >
-              {/* Massive faint watermark flag in the background behind cards (UX visual request) */}
-              {section.emoji && (
-                <div className="team-bg-flag">
-                  {section.emoji}
-                </div>
+              {/* Point 4: Massive faint real country flag behind the stickers cards grid */}
+              {section.iso2 && (
+                <div 
+                  className="team-bg-flag"
+                  style={{
+                    backgroundImage: `url(https://flagcdn.com/w320/${section.iso2}.png)`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    opacity: 0.038,
+                    pointerEvents: "none",
+                    zIndex: 0
+                  }}
+                />
               )}
 
               {/* National Team Banner Header */}
@@ -201,15 +209,32 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                   position: "relative"
                 }}
               >
-                <h3 className="team-title" style={{ fontSize: "1.35rem", fontWeight: "700" }}>
-                  <span style={{ fontSize: "1.65rem", marginRight: "6px" }}>{section.emoji}</span>
-                  {section.title}
-                  
-                  {/* Soccer ball micro-animation only on specials/legends */}
-                  {(section.id === "fwc" || section.id === "leg" || section.id === "search_results") && (
-                    <span className="spinning-soccer-ball" style={{ fontSize: "1.1rem", marginLeft: "10px" }}>⚽</span>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* Point 4: Real flag CDN image in the header */}
+                  {section.iso2 && (
+                    <img 
+                      src={`https://flagcdn.com/h40/${section.iso2}.png`} 
+                      alt={`Bandera`} 
+                      style={{ 
+                        height: "22px", 
+                        borderRadius: "2px", 
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.6)",
+                        marginRight: "12px",
+                        display: "inline-block",
+                        verticalAlign: "middle"
+                      }} 
+                    />
                   )}
-                </h3>
+                  
+                  <h3 className="team-title" style={{ fontSize: "1.35rem", fontWeight: "700", display: "flex", alignItems: "center" }}>
+                    {section.title}
+                    
+                    {/* Point 2: Animated vector soccer ball spinner */}
+                    {(section.isFWC || section.isLEG || section.isSearch) && (
+                      <SoccerBall size={22} className="spinning-soccer-ball" style={{ marginLeft: "10px" }} />
+                    )}
+                  </h3>
+                </div>
 
                 {section.stats && (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -229,7 +254,7 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                       Pegados: <strong style={{ color: "var(--gold)" }}>{section.stats.collected}</strong> / {section.stats.total}
                     </span>
                     
-                    {/* Representing selection flag colors ribbon */}
+                    {/* National colors ribbon */}
                     <div 
                       style={{ 
                         display: "flex", 

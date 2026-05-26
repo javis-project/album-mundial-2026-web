@@ -1,5 +1,6 @@
 import React from "react";
-import { LayoutDashboard, BookOpen, ArrowLeftRight, Settings, Sparkles } from "lucide-react";
+import { LayoutDashboard, BookOpen, ArrowLeftRight, Settings } from "lucide-react";
+import SoccerBall from "./SoccerBall";
 
 export default function Navigation({ activeTab, setActiveTab }) {
   const menuItems = [
@@ -15,7 +16,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
       <aside className="sidebar">
         <div className="sidebar-brand">
           <div className="sidebar-logo-glow" style={{ background: "transparent", boxShadow: "none" }}>
-            <span className="spinning-soccer-ball" style={{ fontSize: "2rem" }}>⚽</span>
+            <SoccerBall size={32} />
           </div>
           <div>
             <h1 className="sidebar-title">Álbum 2026</h1>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { CheckCircle2, AlertCircle, RefreshCw, Trophy, Star, Search } from "lucide-react";
 import MetricCard from "../components/MetricCard";
+import SoccerBall from "../components/SoccerBall";
 import { getStats, getGroupStats, getMissingList, getDuplicatesList } from "../core/dataManager";
 import { GROUPS, TEAM_NAMES } from "../core/constants";
 
@@ -79,9 +80,9 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
               Lleva el control total de tus cromos oficiales del Mundial 2026. Sincroniza tu progreso entre tu PC y tu dispositivo móvil mediante códigos de intercambio comprimidos.
             </p>
           </div>
-          <span className="spinning-soccer-ball" style={{ fontSize: "3.5rem", marginRight: "10px", pointerEvents: "none" }}>
-            ⚽
-          </span>
+          <div style={{ marginRight: "10px" }}>
+            <SoccerBall size={55} />
+          </div>
         </div>
       </div>
 
@@ -123,6 +124,9 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
       <div className="bento-grid">
         {groupProgresses.map((grp) => {
           const GrpIcon = grp.icon;
+          const teamsList = GROUPS[grp.name] || [];
+          const teamsStr = teamsList.join(", "); // E.g., MEX, RSA, KOR, CZE
+          
           return (
             <div 
               key={grp.name} 
@@ -141,14 +145,23 @@ export default function DashboardView({ state, onAddSticker, onNavigateToGroup }
               <div style={{ fontSize: "0.85rem", color: "var(--slate-text)", marginBottom: "10px" }}>
                 {grp.stats.collected} / {grp.stats.total} cromos pegados
               </div>
-              <div className="progress-container" style={{ marginTop: "auto" }}>
-                <div 
-                  className="progress-bar" 
-                  style={{ 
-                    width: `${grp.stats.percentage}%`,
-                    background: grp.name.includes("FWC") || grp.name.includes("LEG") ? "var(--gold)" : "var(--slate-light)"
-                  }}
-                />
+              
+              {/* Progress bar and Team codes in the bottom right (Point 3) */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "auto", gap: "10px" }}>
+                <div className="progress-container" style={{ flexGrow: 1, margin: 0 }}>
+                  <div 
+                    className="progress-bar" 
+                    style={{ 
+                      width: `${grp.stats.percentage}%`,
+                      background: grp.name.includes("FWC") || grp.name.includes("LEG") ? "var(--gold)" : "var(--slate-light)"
+                    }}
+                  />
+                </div>
+                {teamsStr && (
+                  <span style={{ fontSize: "0.75rem", fontFamily: "var(--mono)", color: "var(--slate-text)", whiteSpace: "nowrap" }}>
+                    {teamsStr}
+                  </span>
+                )}
               </div>
             </div>
           );
