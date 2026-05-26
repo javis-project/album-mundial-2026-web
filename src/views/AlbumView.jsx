@@ -282,23 +282,6 @@ export default function AlbumView({ state, onAddSticker, onSubtractSticker, acti
                     >
                       Pegados: <strong style={{ color: "var(--gold)" }}>{section.stats.collected}</strong> / {section.stats.total}
                     </span>
-                    
-                    {/* National colors ribbon */}
-                    <div 
-                      style={{ 
-                        display: "flex", 
-                        gap: "2px", 
-                        height: "4px", 
-                        width: "50px", 
-                        borderRadius: "2px", 
-                        overflow: "hidden", 
-                        marginTop: "8px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.5)"
-                      }}
-                    >
-                      <div style={{ background: primaryColor, flex: 1 }}></div>
-                      <div style={{ background: secondaryColor, flex: 1 }}></div>
-                    </div>
                   </div>
                 )}
               </div>
