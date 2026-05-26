@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import { Download, Upload, Copy, Check, Trash2, HelpCircle, RefreshCw, AlertTriangle, FileText } from "lucide-react";
+import { Download, Upload, Copy, Check, Trash2, RefreshCw, AlertTriangle, FileText } from "lucide-react";
 import { compressToCode, decompressFromCode, importStateData } from "../core/dataManager";
 
-export default function ToolsView({ state, onStateChange, onResetState, onFillRandom }) {
+export default function ToolsView({ state, onStateChange, onResetState }) {
   const [exchangeCode, setExchangeCode] = useState("");
   const [copyCodeSuccess, setCopyCodeSuccess] = useState(false);
   const [importCodeSuccess, setImportCodeSuccess] = useState("");
@@ -201,50 +201,28 @@ export default function ToolsView({ state, onStateChange, onResetState, onFillRa
         </div>
       </div>
 
-      {/* Simulator and Reset tools */}
+      {/* Danger Zone panel */}
       <div className="glass-panel" style={{ padding: "24px" }}>
         <h3 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", color: "#f87171", display: "flex", alignItems: "center", gap: "8px" }}>
           <AlertTriangle size={18} />
-          Zona Peligrosa / Simulación
+          Zona Peligrosa
         </h3>
         <p style={{ fontSize: "0.85rem", color: "var(--slate-text)", marginBottom: "20px" }}>
-          Herramientas avanzadas para desarrolladores o pruebas de simulación rápida.
+          Acción crítica de vaciado. Si necesitas borrar todo el progreso actual para iniciar de cero.
         </p>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-          {/* Fill simulator */}
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => {
-              onFillRandom(30);
-              setJsonSuccess("Álbum simulado al 30% con éxito.");
-            }}
-          >
-            Llenar 30% Aleatorio
-          </button>
-          
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => {
-              onFillRandom(75);
-              setJsonSuccess("Álbum simulado al 75% con éxito.");
-            }}
-          >
-            Llenar 75% Aleatorio
-          </button>
-
+        <div style={{ display: "flex", alignItems: "center" }}>
           {/* Reset Album */}
           {!showConfirmReset ? (
             <button 
               className="btn btn-danger" 
               onClick={() => setShowConfirmReset(true)}
-              style={{ marginLeft: "auto" }}
             >
               <Trash2 size={18} />
               Reiniciar Álbum
             </button>
           ) : (
-            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.85rem", color: "#f87171", fontWeight: "500" }}>
                 ¿Confirmas borrar TODO tu progreso?
               </span>

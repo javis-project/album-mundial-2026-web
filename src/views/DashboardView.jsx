@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { CheckCircle2, AlertCircle, RefreshCw, Trophy, Star, ShieldAlert, Search } from "lucide-react";
+import { CheckCircle2, AlertCircle, RefreshCw, Trophy, Star, Search } from "lucide-react";
 import MetricCard from "../components/MetricCard";
 import { getStats, getGroupStats, getMissingList, getDuplicatesList } from "../core/dataManager";
 import { GROUPS, TEAM_NAMES } from "../core/constants";
 
-export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, onAddSticker, onNavigateToGroup }) {
+export default function DashboardView({ state, onAddSticker, onNavigateToGroup }) {
   const stats = getStats(state);
   
   // State for search queries in the dashboard panels
@@ -59,21 +59,30 @@ export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-      {/* Welcome Banner */}
+      {/* Welcome Banner with Creative Spinning Soccer Ball */}
       <div 
         className="glass-panel" 
         style={{ 
           padding: "30px", 
           background: "linear-gradient(135deg, rgba(223, 178, 59, 0.05) 0%, rgba(16, 18, 27, 0.7) 100%)",
-          borderLeft: "4px solid var(--gold)" 
+          borderLeft: "4px solid var(--gold)",
+          position: "relative",
+          overflow: "hidden"
         }}
       >
-        <h2 style={{ fontSize: "1.75rem", marginBottom: "8px", fontWeight: "700" }}>
-          Panel del Coleccionista
-        </h2>
-        <p style={{ color: "var(--slate-text)", maxWidth: "600px", fontSize: "0.95rem" }}>
-          Lleva el control total de tus cromos oficiales del Mundial 2026. Sincroniza tu progreso entre tu PC y tu dispositivo móvil mediante códigos de intercambio comprimidos.
-        </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", gap: "20px" }}>
+          <div style={{ flexGrow: 1 }}>
+            <h2 style={{ fontSize: "1.75rem", marginBottom: "8px", fontWeight: "700" }}>
+              Panel del Coleccionista
+            </h2>
+            <p style={{ color: "var(--slate-text)", maxWidth: "650px", fontSize: "0.95rem" }}>
+              Lleva el control total de tus cromos oficiales del Mundial 2026. Sincroniza tu progreso entre tu PC y tu dispositivo móvil mediante códigos de intercambio comprimidos.
+            </p>
+          </div>
+          <span className="spinning-soccer-ball" style={{ fontSize: "3.5rem", marginRight: "10px", pointerEvents: "none" }}>
+            ⚽
+          </span>
+        </div>
       </div>
 
       {/* Metrics Row */}
@@ -146,7 +155,7 @@ export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, 
         })}
       </div>
 
-      {/* NEW: 2-Column Search Panels (Duplicates vs Quick Missing Panel) */}
+      {/* 2-Column Search Panels (Duplicates vs Quick Missing Panel) */}
       <div className="tools-grid">
         {/* Left Column: Buscador de Repetidas */}
         <div className="glass-panel" style={{ padding: "24px", display: "flex", flexDirection: "column", height: "450px" }}>
@@ -293,36 +302,6 @@ export default function DashboardView({ state, onNavigateToAlbum, onFillRandom, 
           </div>
         </div>
       </div>
-
-      {/* Action shortcuts / Quick Start */}
-      {stats.collected === 0 && (
-        <div 
-          className="glass-panel" 
-          style={{ 
-            padding: "24px", 
-            textAlign: "center", 
-            background: "rgba(30, 41, 59, 0.15)",
-            border: "1px dashed var(--border-color)",
-            borderRadius: "var(--radius-md)" 
-          }}
-        >
-          <ShieldAlert size={36} style={{ color: "var(--gold)", marginBottom: "12px" }} />
-          <h4 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600" }}>
-            ¿Tu álbum está vacío?
-          </h4>
-          <p style={{ fontSize: "0.9rem", color: "var(--slate-text)", marginBottom: "18px", maxWidth: "500px", marginLeft: "auto", marginRight: "auto" }}>
-            Puedes simular un progreso inicial rápido para probar la aplicación, o ir directamente a marcar tus cromos en la pestaña Mi Álbum.
-          </p>
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-            <button className="btn btn-primary" onClick={onNavigateToAlbum}>
-              Ir a Mi Álbum
-            </button>
-            <button className="btn btn-secondary" onClick={() => onFillRandom(30)}>
-              Llenar 30% Aleatorio
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

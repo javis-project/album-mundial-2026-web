@@ -769,6 +769,8 @@ textarea::placeholder {
   border-radius: var(--radius-md);
   padding: 24px;
   margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
 .team-header {
@@ -1027,4 +1029,33 @@ textarea::placeholder {
   .sticker-grid {
     grid-template-columns: repeat(3, 1fr); /* Force 3 columns on tiny screens */
   }
+}
+
+/* Creative Soccer Ball Spin Animation */
+@keyframes spin-soccer {
+  0% { transform: rotate(0deg) scale(1) translateY(0); }
+  25% { transform: rotate(90deg) scale(1.1) translateY(-3px); }
+  50% { transform: rotate(180deg) scale(1) translateY(0); }
+  75% { transform: rotate(270deg) scale(1.1) translateY(-3px); }
+  100% { transform: rotate(360deg) scale(1) translateY(0); }
+}
+
+.spinning-soccer-ball {
+  display: inline-block;
+  animation: spin-soccer 5s infinite ease-in-out;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
+  user-select: none;
+}
+
+/* Dynamic flag background sheen for selections */
+.team-bg-flag {
+  position: absolute;
+  bottom: -40px;
+  right: -20px;
+  font-size: 15rem;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+  filter: blur(1px);
 }

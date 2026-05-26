@@ -85,7 +85,6 @@ export default function App() {
             state={albumState}
             onStateChange={setAlbumState}
             onResetState={handleResetState}
-            onFillRandom={handleFillRandomly}
           />
         );
       default:

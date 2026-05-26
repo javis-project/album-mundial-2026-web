@@ -14,8 +14,8 @@ export default function Navigation({ activeTab, setActiveTab }) {
       {/* Desktop Sidebar Layout */}
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-logo-glow">
-            <Sparkles size={20} className="gold-icon" />
+          <div className="sidebar-logo-glow" style={{ background: "transparent", boxShadow: "none" }}>
+            <span className="spinning-soccer-ball" style={{ fontSize: "2rem" }}>⚽</span>
           </div>
           <div>
             <h1 className="sidebar-title">Álbum 2026</h1>
