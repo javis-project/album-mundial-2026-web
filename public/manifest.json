@@ -1,0 +1,18 @@
+{
+  "short_name": "Álbum 2026",
+  "name": "Álbum Mundial 2026 - PWA",
+  "description": "Lleva el control de tu álbum de cromos de la Copa del Mundo 2026.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#07090e",
+  "theme_color": "#dfb23b",
+  "display": "standalone",
+  "orientation": "any"
+}
