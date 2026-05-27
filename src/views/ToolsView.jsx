@@ -1,6 +1,61 @@
-import React, { useState, useRef } from "react";
-import { Download, Upload, Copy, Check, Trash2, RefreshCw, AlertTriangle, FileText } from "lucide-react";
-import { compressToCode, decompressFromCode, importStateData } from "../core/dataManager";
+import React, { useState, useRef, useEffect } from "react";
+import { Download, Upload, Copy, Check, Trash2, RefreshCw, AlertTriangle, FileText, Printer } from "lucide-react";
+import { compressToCode, decompressFromCode, importStateData, getStats, getMissingList, getDuplicatesList } from "../core/dataManager";
+import { TEAMS, TEAM_NAMES } from "../core/constants";
+
+// Helper to group sticker codes by their prefix for compact display
+function groupStickersByPrefix(codes, duplicatesMap = null) {
+  const groups = {};
+  for (const code of codes) {
+    let prefix, numStr, numVal;
+    if (code === "00") {
+      prefix = "FWC";
+      numStr = "00";
+      numVal = 0;
+    } else if (code.startsWith("FWC")) {
+      prefix = "FWC";
+      numStr = code.slice(3);
+      numVal = parseInt(numStr, 10) || 999;
+    } else if (code.startsWith("CC")) {
+      prefix = "CC";
+      numStr = code.slice(2);
+      numVal = parseInt(numStr, 10) || 999;
+    } else {
+      prefix = code.slice(0, 3);
+      numStr = code.slice(3);
+      numVal = parseInt(numStr, 10) || 999;
+    }
+
+    const qtySuffix = (duplicatesMap && duplicatesMap[code]) ? ` (x${duplicatesMap[code]})` : "";
+
+    if (!groups[prefix]) {
+      groups[prefix] = [];
+    }
+    groups[prefix].push({ numVal, numStr, qtySuffix });
+  }
+
+  const groupedStrings = {};
+  for (const [prefix, items] of Object.entries(groups)) {
+    items.sort((a, b) => a.numVal - b.numVal);
+    groupedStrings[prefix] = items.map(item => `${item.numStr}${item.qtySuffix}`).join(", ");
+  }
+
+  return groupedStrings;
+}
+
+// Helper to sort prefixes in the sequence of the physical album
+function getSortedPrefixes(prefixes) {
+  const order = ["FWC", ...TEAMS, "CC"];
+  const orderMap = {};
+  order.forEach((p, idx) => {
+    orderMap[p] = idx;
+  });
+  return [...prefixes].sort((a, b) => {
+    const idxA = orderMap[a] !== undefined ? orderMap[a] : 999;
+    const idxB = orderMap[b] !== undefined ? orderMap[b] : 999;
+    return idxA - idxB;
+  });
+}
 
 export default function ToolsView({ state, onStateChange, onResetState }) {
   const [exchangeCode, setExchangeCode] = useState("");
@@ -11,7 +66,25 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   const [jsonSuccess, setJsonSuccess] = useState("");
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   
+  // PDF / Print configuration states
+  const [collectorName, setCollectorName] = useState("Coleccionista");
+  const [contactInfo, setContactInfo] = useState("");
+  const [includeMissing, setIncludeMissing] = useState(true);
+  const [includeDuplicates, setIncludeDuplicates] = useState(true);
+  const [includeCode, setIncludeCode] = useState(true);
+  const [includeNotes, setIncludeNotes] = useState(true);
+  const [compCode, setCompCode] = useState("");
+  
   const fileInputRef = useRef(null);
+
+  // Automatically compress code for print block when state or selection changes
+  useEffect(() => {
+    if (includeCode) {
+      compressToCode(state)
+        .then(code => setCompCode(code))
+        .catch(err => console.error("Error compressing state for print:", err));
+    }
+  }, [state, includeCode]);
 
   // 1. Copy compressed Base64 code
   const handleCopyCode = async () => {
@@ -88,6 +161,22 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
     // Reset file input so same file can be uploaded again
     e.target.value = "";
   };
+
+  // Trigger browser's print dialog
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // Calculate statistics and lists for print preview
+  const stats = getStats(state);
+  const missingList = getMissingList(state);
+  const duplicatesList = getDuplicatesList(state); // { code: qty }
+
+  const groupedMissing = groupStickersByPrefix(missingList);
+  const groupedDuplicates = groupStickersByPrefix(Object.keys(duplicatesList), duplicatesList);
+
+  const sortedMissingPrefixes = getSortedPrefixes(Object.keys(groupedMissing));
+  const sortedDuplicatePrefixes = getSortedPrefixes(Object.keys(groupedDuplicates));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -201,6 +290,90 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
         </div>
       </div>
 
+      {/* Export to PDF / Print Configuration Panel (Full Width) */}
+      <div className="glass-panel" style={{ padding: "24px" }}>
+        <h3 style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+          <Printer size={18} style={{ color: "var(--gold)" }} />
+          Reporte para Imprimir (PDF / Papel)
+        </h3>
+        <p style={{ fontSize: "0.85rem", color: "var(--slate-text)", marginBottom: "20px" }}>
+          Personaliza y genera una lista optimizada para imprimir en papel o guardar como PDF. Ideal para llevar a reuniones de intercambio.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.8rem", color: "var(--text-light)" }}>Nombre del Coleccionista</label>
+              <input
+                type="text"
+                value={collectorName}
+                onChange={(e) => setCollectorName(e.target.value)}
+                placeholder="Ej: Matias"
+                style={{ background: "rgba(0,0,0,0.3)" }}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.8rem", color: "var(--text-light)" }}>Datos de Contacto (opcional)</label>
+              <input
+                type="text"
+                value={contactInfo}
+                onChange={(e) => setContactInfo(e.target.value)}
+                placeholder="Ej: Cel / IG / Twitter"
+                style={{ background: "rgba(0,0,0,0.3)" }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "8px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+              <input
+                type="checkbox"
+                checked={includeMissing}
+                onChange={(e) => setIncludeMissing(e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              Incluir Faltantes
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+              <input
+                type="checkbox"
+                checked={includeDuplicates}
+                onChange={(e) => setIncludeDuplicates(e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              Incluir Repetidas
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+              <input
+                type="checkbox"
+                checked={includeCode}
+                onChange={(e) => setIncludeCode(e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              Incluir Código Digital
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+              <input
+                type="checkbox"
+                checked={includeNotes}
+                onChange={(e) => setIncludeNotes(e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              Incluir Espacio de Notas
+            </label>
+          </div>
+
+          <button 
+            className="btn btn-primary" 
+            onClick={handlePrint}
+            style={{ width: "100%", marginTop: "10px", gap: "8px", display: "flex", justifyContent: "center", alignItems: "center" }}
+          >
+            <Printer size={18} />
+            Imprimir o Exportar PDF
+          </button>
+        </div>
+      </div>
+
       {/* Danger Zone panel */}
       <div className="glass-panel danger-zone-panel" style={{ padding: "24px" }}>
         <h3 className="danger-zone-header" style={{ fontSize: "1.1rem", marginBottom: "8px", fontWeight: "600", color: "#f87171", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -244,6 +417,119 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
               >
                 Cancelar
               </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ========================================== */}
+      {/* PRINT-ONLY AREA (RENDERED HIDDEN ON SCREEN) */}
+      {/* ========================================== */}
+      <div id="print-area">
+        <div className="print-container">
+          <div className="print-header">
+            <h1 className="print-title">ÁLBUM COPA MUNDIAL FIFA 2026</h1>
+            <p className="print-subtitle">REPORTE DE INTERCAMBIO Y CONTROL DE COLECCIÓN</p>
+          </div>
+          
+          <div className="print-meta-box">
+            <div className="print-meta-item">
+              <strong>Coleccionista:</strong> {collectorName}<br />
+              <strong>Contacto:</strong> {contactInfo || "No especificado"}<br />
+              <strong>Fecha de Reporte:</strong> {new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+            </div>
+            <div className="print-meta-item">
+              <strong>Progreso General:</strong> {stats.percentage.toFixed(1)}% ({stats.collected}/{stats.total})<br />
+              <strong>Faltantes:</strong> {stats.missing}<br />
+              <strong>Repetidas (Extras):</strong> {stats.duplicates}
+            </div>
+          </div>
+          
+          {/* 1. Duplicates list */}
+          {includeDuplicates && (
+            <div>
+              <h3 className="print-section-title">Figuritas Repetidas (Disponibles para Intercambio)</h3>
+              {Object.keys(groupedDuplicates).length > 0 ? (
+                <table className="print-table duplicates-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "160px" }}>Selección / Sección</th>
+                      <th>Figuritas y Cantidades Extras</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedDuplicatePrefixes.map(prefix => {
+                      const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                      return (
+                        <tr key={prefix}>
+                          <td><strong>{teamName}</strong> ({prefix})</td>
+                          <td>{groupedDuplicates[prefix]}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas repetidas disponibles en este momento.</p>
+              )}
+            </div>
+          )}
+          
+          {/* 2. Missing list */}
+          {includeMissing && (
+            <div>
+              <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
+              {Object.keys(groupedMissing).length > 0 ? (
+                <table className="print-table missing-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "160px" }}>Selección / Sección</th>
+                      <th>Números Faltantes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedMissingPrefixes.map(prefix => {
+                      const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                      return (
+                        <tr key={prefix}>
+                          <td><strong>{teamName}</strong> ({prefix})</td>
+                          <td>{groupedMissing[prefix]}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <p style={{ fontSize: "10px", color: "#4b5563" }}>¡Felicidades! Álbum completo. No tienes figuritas faltantes.</p>
+              )}
+            </div>
+          )}
+          
+          {/* 3. Sync code */}
+          {includeCode && compCode && (
+            <div>
+              <h3 className="print-section-title">Sincronización Digital</h3>
+              <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "6px" }}>
+                Para transferir tu progreso a otro dispositivo o compartir tu colección con un amigo digitalmente, copia y pega este código comprimido en la opción 'Importar Código' de la sección Herramientas en la versión web o de escritorio:
+              </p>
+              <div className="print-code-box">
+                {compCode}
+              </div>
+            </div>
+          )}
+          
+          {/* 4. Lined notes */}
+          {includeNotes && (
+            <div>
+              <h3 className="print-section-title">Notas / Acuerdos de Intercambio (Firma o Figuritas Pactadas)</h3>
+              <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "12px" }}>
+                Usa este espacio durante tus reuniones de intercambio para registrar tratos pendientes, figuritas prestadas o datos de contacto de otros coleccionistas:
+              </p>
+              <div className="print-notes-lines">
+                <div className="print-notes-line"></div>
+                <div className="print-notes-line"></div>
+                <div className="print-notes-line"></div>
+              </div>
             </div>
           )}
         </div>

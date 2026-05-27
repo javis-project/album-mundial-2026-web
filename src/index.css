@@ -1198,3 +1198,170 @@ textarea::placeholder {
   user-select: none;
   filter: blur(1px);
 }
+
+/* ========================================== */
+/* PRINT STYLES FOR TRADE REPORT (PDF)        */
+/* ========================================== */
+@media print {
+  /* Hide standard dark UI components */
+  #root > :not(#print-area),
+  .app-container,
+  .main-content,
+  .sidebar,
+  .mobile-nav,
+  header,
+  footer {
+    display: none !important;
+  }
+  
+  /* Show and stretch the printable area */
+  #print-area {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #111827 !important;
+    background: white !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  @page {
+    margin: 15mm;
+    size: A4 portrait;
+  }
+
+  /* Force background colors and borders to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Hidden on screen */
+#print-area {
+  display: none;
+}
+
+/* Print Container layout */
+.print-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  color: #1f2937;
+  padding: 10px;
+}
+
+.print-header {
+  border-bottom: 2px solid #ffd700;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.print-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #7a0026; /* Deep Burgundy */
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.print-subtitle {
+  font-size: 9px;
+  font-weight: bold;
+  color: #8c731f; /* Gold accent */
+  margin: 3px 0 0 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Metadata box */
+.print-meta-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #ffd700; /* Gold highlight strip */
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+.print-meta-item {
+  line-height: 1.4;
+}
+
+/* Sections */
+.print-section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #7a0026;
+  border-bottom: 1.5px solid #e5e7eb;
+  padding-bottom: 3px;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  page-break-after: avoid;
+}
+
+.print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+  font-size: 10px;
+}
+
+.print-table th, .print-table td {
+  border: 1px solid #e5e7eb;
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.print-table th {
+  color: white;
+  font-weight: bold;
+}
+
+.print-table.duplicates-table th {
+  background-color: #7a0026 !important; /* Burgundy header background */
+}
+
+.print-table.missing-table th {
+  background-color: #8c731f !important; /* Gold header background */
+}
+
+.print-table tr:nth-child(even) {
+  background-color: #fcfcfd;
+}
+
+/* Monospaced compressed code container */
+.print-code-box {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 7px;
+  line-height: 9px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border-radius: 4px;
+  color: #374151;
+}
+
+/* Notes section lines */
+.print-notes-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.print-notes-line {
+  border-bottom: 1px solid #d1d5db;
+  height: 1px;
+}
+
