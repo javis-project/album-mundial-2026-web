@@ -90,19 +90,6 @@ export default function App() {
     } catch (e) {
       console.warn("window.history.back failed:", e);
     }
-
-    // 3. Fallback exit: Redirect to referrer or Google so it exits the app 
-    // to a real website rather than getting stuck on a blank page.
-    setTimeout(() => {
-      try {
-        const referrer = document.referrer;
-        if (referrer && !referrer.includes(window.location.hostname)) {
-          window.location.href = referrer;
-        } else {
-          window.location.href = "https://www.google.com";
-        }
-      } catch (e) {}
-    }, 300);
   };
 
   const handleCancelExit = () => {

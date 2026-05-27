@@ -362,12 +362,6 @@ textarea::placeholder {
   color: var(--gold);
 }
 
-@media (hover: hover) {
-  .mobile-nav-item:hover {
-    color: var(--gold);
-  }
-}
-
 /* Main Content Layout */
 .main-content {
   flex-grow: 1;
