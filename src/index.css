@@ -358,8 +358,14 @@ textarea::placeholder {
   transition: all 0.2s ease;
 }
 
-.mobile-nav-item:hover, .mobile-nav-item.active {
+.mobile-nav-item.active {
   color: var(--gold);
+}
+
+@media (hover: hover) {
+  .mobile-nav-item:hover {
+    color: var(--gold);
+  }
 }
 
 /* Main Content Layout */

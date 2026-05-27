@@ -36,7 +36,8 @@ export default function App() {
 
     const handleHashChange = () => {
       const currentHash = window.location.hash;
-      const tab = currentHash.replace("#/", "");
+      // Robust regex to extract tab name regardless of browser-specific hash slashes (e.g. #/album, #album)
+      const tab = currentHash.replace(/^#\/?/, "");
       
       if (tab === "exit") {
         setShowExitModal(true);
@@ -76,19 +77,32 @@ export default function App() {
   const handleConfirmExit = () => {
     setShowExitModal(false);
     
-    // Attempt standard closure mechanisms
+    // 1. Attempt standard window close (works in standalone app wrappers/PWAs/webviews)
     try {
       window.close();
     } catch (e) {
       console.warn("window.close failed:", e);
     }
 
-    // Go back in history (exits if there is a previous site)
+    // 2. Go back in history (navigates out of the app to the previous site)
     try {
       window.history.back();
     } catch (e) {
       console.warn("window.history.back failed:", e);
     }
+
+    // 3. Fallback exit: Redirect to referrer or Google so it exits the app 
+    // to a real website rather than getting stuck on a blank page.
+    setTimeout(() => {
+      try {
+        const referrer = document.referrer;
+        if (referrer && !referrer.includes(window.location.hostname)) {
+          window.location.href = referrer;
+        } else {
+          window.location.href = "https://www.google.com";
+        }
+      } catch (e) {}
+    }, 300);
   };
 
   const handleCancelExit = () => {
