@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
 import Navigation from "./components/Sidebar";
 import DashboardView from "./views/DashboardView";
 import AlbumView from "./views/AlbumView";
@@ -11,106 +10,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [activeGroup, setActiveGroup] = useState("Especiales FWC");
   const [albumState, setAlbumState] = useState(() => loadState());
-  const [showExitModal, setShowExitModal] = useState(false);
-  const [isExited, setIsExited] = useState(false);
 
   // Automatically save state when it changes
   useEffect(() => {
     saveState(albumState);
   }, [albumState]);
-
-  // Handle mobile / browser back button and gestures using URL Hash routing
-  useEffect(() => {
-    const currentHash = window.location.hash;
-    
-    // Initialize hash routing stack so that dashboard is always behind any secondary tab
-    if (!currentHash || currentHash === "#/" || currentHash === "#/dashboard") {
-      window.history.replaceState(null, "", "#/exit");
-      window.history.pushState(null, "", "#/dashboard");
-      setActiveTab("dashboard");
-    } else {
-      // If loaded directly on a secondary tab, initialize the stack to [exit, dashboard, secondaryTab]
-      const targetTab = currentHash.replace(/^#\/?/, "");
-      if (targetTab === "exit") {
-        window.history.replaceState(null, "", "#/exit");
-        window.history.pushState(null, "", "#/dashboard");
-        setActiveTab("dashboard");
-      } else {
-        window.history.replaceState(null, "", "#/exit");
-        window.history.pushState(null, "", "#/dashboard");
-        window.history.pushState(null, "", "#/" + targetTab);
-        setActiveTab(targetTab);
-      }
-    }
-
-    const handleHashChange = () => {
-      const currentHash = window.location.hash;
-      const tab = currentHash.replace(/^#\/?/, "");
-      
-      if (tab === "exit") {
-        setShowExitModal(true);
-      } else if (tab === "dashboard" || !tab) {
-        setShowExitModal(false);
-        setActiveTab("dashboard");
-      } else {
-        setShowExitModal(false);
-        setActiveTab(tab);
-      }
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, []);
-
-  // UI Navigation handler that updates the browser hash instead of setting state directly.
-  // This allows the browser history and back gesture to manage the activeTab state naturally.
-  const handleNavigate = (targetTab) => {
-    const currentTab = activeTab;
-    if (targetTab === currentTab) return;
-
-    if (targetTab === "dashboard") {
-      // When navigating back to dashboard from a secondary tab, we pop history
-      // to cleanly restore the history stack to [#/exit, #/dashboard].
-      window.history.back();
-    } else {
-      // Secondary tab (album, trade, tools)
-      if (currentTab === "dashboard") {
-        window.location.hash = "/" + targetTab; // Push history entry
-      } else {
-        window.location.replace("#/" + targetTab); // Replace history entry to avoid deep history stacks
-      }
-    }
-  };
-
-  const handleConfirmExit = () => {
-    setShowExitModal(false);
-    
-    // 1. Attempt standard window close (works in standalone app wrappers/PWAs/webviews)
-    try {
-      window.close();
-    } catch (e) {
-      console.warn("window.close failed:", e);
-    }
-
-    // 2. Go back in history (navigates out of the app if there is a previous website)
-    try {
-      window.history.back();
-    } catch (e) {
-      console.warn("window.history.back failed:", e);
-    }
-
-    // 3. Fallback: If close and back did not close the page (browser sandboxing),
-    // display a beautiful exit screen advising the user to close the tab manually.
-    setIsExited(true);
-  };
-
-  const handleCancelExit = () => {
-    setShowExitModal(false);
-    // Restore hash back to dashboard
-    window.location.hash = "/dashboard";
-  };
 
   // Handler to increment sticker count
   const handleAddSticker = (code) => {
@@ -156,9 +60,9 @@ export default function App() {
             state={albumState}
             onNavigateToGroup={(groupName) => {
               setActiveGroup(groupName);
-              handleNavigate("album");
+              setActiveTab("album");
             }}
-            onNavigateToAlbum={() => handleNavigate("album")}
+            onNavigateToAlbum={() => setActiveTab("album")}
             onFillRandom={handleFillRandomly}
             onAddSticker={handleAddSticker}
           />
@@ -189,9 +93,9 @@ export default function App() {
             state={albumState}
             onNavigateToGroup={(groupName) => {
               setActiveGroup(groupName);
-              handleNavigate("album");
+              setActiveTab("album");
             }}
-            onNavigateToAlbum={() => handleNavigate("album")}
+            onNavigateToAlbum={() => setActiveTab("album")}
             onFillRandom={handleFillRandomly}
             onAddSticker={handleAddSticker}
           />
@@ -199,63 +103,15 @@ export default function App() {
     }
   };
 
-  // If the user exited the app, render a premium glassmorphic exit page
-  if (isExited) {
-    return (
-      <div className="exit-page-container">
-        <div className="exit-modal-card">
-          <div className="exit-modal-icon-container">
-            <LogOut size={28} />
-          </div>
-          <h3 className="exit-modal-title">Sesión Finalizada</h3>
-          <p className="exit-modal-text">
-            Has salido de la aplicación. Por políticas de seguridad del navegador, puedes cerrar esta pestaña manualmente.
-          </p>
-          <div className="exit-modal-actions">
-            <button className="exit-modal-btn exit-modal-btn-cancel" onClick={() => {
-              setIsExited(false);
-              window.location.hash = "/dashboard";
-            }}>
-              Volver al Álbum
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="app-container">
       {/* Navigation sidebar (adaptive layout) */}
-      <Navigation activeTab={activeTab} setActiveTab={handleNavigate} />
+      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
       
       {/* Main workspace scroll area */}
       <main className="main-content">
         {renderView()}
       </main>
-
-      {/* Premium Exit Confirmation Modal */}
-      {showExitModal && (
-        <div className="exit-modal-overlay">
-          <div className="exit-modal-card">
-            <div className="exit-modal-icon-container">
-              <LogOut size={28} />
-            </div>
-            <h3 className="exit-modal-title">¿Cerrar Aplicación?</h3>
-            <p className="exit-modal-text">
-              ¿Estás seguro de que deseas salir del Álbum Mundial 2026? Perderás el acceso rápido si cierras la pestaña.
-            </p>
-            <div className="exit-modal-actions">
-              <button className="exit-modal-btn exit-modal-btn-cancel" onClick={handleCancelExit}>
-                Cancelar
-              </button>
-              <button className="exit-modal-btn exit-modal-btn-confirm" onClick={handleConfirmExit}>
-                Salir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
