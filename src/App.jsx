@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { LogOut } from "lucide-react";
 import Navigation from "./components/Sidebar";
 import DashboardView from "./views/DashboardView";
@@ -12,111 +12,89 @@ export default function App() {
   const [activeGroup, setActiveGroup] = useState("Especiales FWC");
   const [albumState, setAlbumState] = useState(() => loadState());
   const [showExitModal, setShowExitModal] = useState(false);
-  
-  // Track whether the tab change was triggered by popstate to prevent double pushing history states
-  const isPopStateRef = useRef(false);
 
   // Automatically save state when it changes
   useEffect(() => {
     saveState(albumState);
   }, [albumState]);
 
-  // Handle mobile / browser back button and gestures
+  // Handle mobile / browser back button and gestures using URL Hash routing
   useEffect(() => {
-    // 1. Initialize history state: replace with 'exit' sentinel, then push 'dashboard'
-    window.history.replaceState({ tab: "exit" }, "");
-    window.history.pushState({ tab: "dashboard" }, "");
-
-    const handlePopState = (event) => {
-      const state = event.state;
-      
-      // Fallback: If state is null or missing tab property, default to dashboard
-      // to ensure UI is in sync and no tab remains incorrectly colored.
-      if (!state || !state.tab) {
-        setShowExitModal(false);
-        isPopStateRef.current = true;
-        setActiveTab("dashboard");
-        return;
-      }
-
-      if (state.tab === "exit") {
-        // User pressed back from dashboard -> Show premium exit confirmation modal
-        setShowExitModal(true);
-      } else if (state.tab === "dashboard") {
-        // User went back to dashboard
-        setShowExitModal(false);
-        isPopStateRef.current = true;
+    // Initialize hash routing
+    if (!window.location.hash || window.location.hash === "#/") {
+      window.history.replaceState(null, "", "#/exit");
+      window.history.pushState(null, "", "#/dashboard");
+      setActiveTab("dashboard");
+    } else {
+      const initialTab = window.location.hash.replace("#/", "");
+      if (initialTab === "exit") {
         setActiveTab("dashboard");
       } else {
-        // User went back to a secondary tab
+        setActiveTab(initialTab || "dashboard");
+      }
+    }
+
+    const handleHashChange = () => {
+      const currentHash = window.location.hash;
+      const tab = currentHash.replace("#/", "");
+      
+      if (tab === "exit") {
+        setShowExitModal(true);
+      } else if (tab === "dashboard" || !tab) {
         setShowExitModal(false);
-        isPopStateRef.current = true;
-        setActiveTab(state.tab);
+        setActiveTab("dashboard");
+      } else {
+        setShowExitModal(false);
+        setActiveTab(tab);
       }
     };
 
-    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("hashchange", handleHashChange);
     return () => {
-      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   }, []);
 
-  // Synchronize activeTab changes from UI actions to browser history
-  useEffect(() => {
-    if (isPopStateRef.current) {
-      // If the tab change was already triggered by browser history navigation,
-      // reset the ref flag and do not push or replace any history entries.
-      isPopStateRef.current = false;
-      return;
-    }
+  // UI Navigation handler that updates the browser hash instead of setting state directly.
+  // This allows the browser history and back gesture to manage the activeTab state naturally.
+  const handleNavigate = (targetTab) => {
+    const currentTab = activeTab;
+    if (targetTab === currentTab) return;
 
-    const currentHistoryTab = window.history.state?.tab;
-
-    if (activeTab === "dashboard") {
-      // If we are at dashboard and history says otherwise, sync it
-      if (currentHistoryTab && currentHistoryTab !== "dashboard" && currentHistoryTab !== "exit") {
-        window.history.pushState({ tab: "dashboard" }, "");
-      }
+    if (targetTab === "dashboard") {
+      window.location.hash = "/dashboard";
     } else {
       // Secondary tab (album, trade, tools)
-      if (currentHistoryTab === "dashboard") {
-        // Transition from dashboard to secondary -> push state
-        window.history.pushState({ tab: activeTab }, "");
-      } else if (currentHistoryTab && currentHistoryTab !== activeTab && currentHistoryTab !== "exit") {
-        // Transition between secondary tabs -> replace state to avoid deep secondary menus history
-        window.history.replaceState({ tab: activeTab }, "");
+      if (currentTab === "dashboard") {
+        window.location.hash = "/" + targetTab; // Push history entry
+      } else {
+        window.location.replace("#/" + targetTab); // Replace history entry to avoid deep history stacks
       }
     }
-  }, [activeTab]);
+  };
 
   const handleConfirmExit = () => {
     setShowExitModal(false);
     
-    // Attempt multiple strategies to exit the app / close the window:
-    // We removed window.open('', '_self').close() and about:blank redirects
-    // because they cause browser tabs to turn white / say 'about:blank'
-    // when the browser blocks programmatic closing of tabs.
-    
-    // 1. Standard window.close() (works in custom app wrappers, PWAs, or webviews)
+    // Attempt standard closure mechanisms
     try {
       window.close();
     } catch (e) {
-      console.warn("Standard close failed:", e);
+      console.warn("window.close failed:", e);
     }
 
-    // 2. Fallback back navigation (exits if there is a previous site)
+    // Go back in history (exits if there is a previous site)
     try {
       window.history.back();
     } catch (e) {
-      console.warn("Back navigation failed:", e);
+      console.warn("window.history.back failed:", e);
     }
   };
 
   const handleCancelExit = () => {
     setShowExitModal(false);
-    // Push dashboard back to history stack to restore intercepting back button
-    window.history.pushState({ tab: "dashboard" }, "");
-    setActiveTab("dashboard");
+    // Restore hash back to dashboard
+    window.location.hash = "/dashboard";
   };
 
   // Handler to increment sticker count
@@ -163,9 +141,9 @@ export default function App() {
             state={albumState}
             onNavigateToGroup={(groupName) => {
               setActiveGroup(groupName);
-              setActiveTab("album");
+              handleNavigate("album");
             }}
-            onNavigateToAlbum={() => setActiveTab("album")}
+            onNavigateToAlbum={() => handleNavigate("album")}
             onFillRandom={handleFillRandomly}
             onAddSticker={handleAddSticker}
           />
@@ -196,9 +174,9 @@ export default function App() {
             state={albumState}
             onNavigateToGroup={(groupName) => {
               setActiveGroup(groupName);
-              setActiveTab("album");
+              handleNavigate("album");
             }}
-            onNavigateToAlbum={() => setActiveTab("album")}
+            onNavigateToAlbum={() => handleNavigate("album")}
             onFillRandom={handleFillRandomly}
             onAddSticker={handleAddSticker}
           />
@@ -209,7 +187,7 @@ export default function App() {
   return (
     <div className="app-container">
       {/* Navigation sidebar (adaptive layout) */}
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navigation activeTab={activeTab} setActiveTab={handleNavigate} />
       
       {/* Main workspace scroll area */}
       <main className="main-content">
