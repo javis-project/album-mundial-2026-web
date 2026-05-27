@@ -26,7 +26,14 @@ export default function App() {
 
     const handlePopState = (event) => {
       const state = event.state;
-      if (!state) return;
+      
+      // Fallback: If state is null or missing tab property, default to dashboard
+      // to ensure UI is in sync and no tab remains incorrectly colored.
+      if (!state || !state.tab) {
+        setShowExitModal(false);
+        setActiveTab("dashboard");
+        return;
+      }
 
       if (state.tab === "exit") {
         // User pressed back from dashboard -> Show premium exit confirmation modal
@@ -71,7 +78,35 @@ export default function App() {
 
   const handleConfirmExit = () => {
     setShowExitModal(false);
-    window.history.back(); // Go back past 'exit' state to navigate out of the app
+    
+    // Attempt multiple strategies to exit the app / close the window:
+    // 1. Try modern bypass technique to close tab/window
+    try {
+      window.open("", "_self").close();
+    } catch (e) {
+      console.warn("Bypass close failed:", e);
+    }
+
+    // 2. Standard window.close()
+    try {
+      window.close();
+    } catch (e) {
+      console.warn("Standard close failed:", e);
+    }
+
+    // 3. Fallback back navigation
+    try {
+      window.history.back();
+    } catch (e) {
+      console.warn("Back navigation failed:", e);
+    }
+
+    // 4. Ultimate redirect fallback
+    setTimeout(() => {
+      try {
+        window.location.href = "about:blank";
+      } catch (e) {}
+    }, 250);
   };
 
   const handleCancelExit = () => {
