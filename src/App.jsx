@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { LogOut } from "lucide-react";
 import Navigation from "./components/Sidebar";
 import DashboardView from "./views/DashboardView";
@@ -12,6 +12,9 @@ export default function App() {
   const [activeGroup, setActiveGroup] = useState("Especiales FWC");
   const [albumState, setAlbumState] = useState(() => loadState());
   const [showExitModal, setShowExitModal] = useState(false);
+  
+  // Track whether the tab change was triggered by popstate to prevent double pushing history states
+  const isPopStateRef = useRef(false);
 
   // Automatically save state when it changes
   useEffect(() => {
@@ -31,6 +34,7 @@ export default function App() {
       // to ensure UI is in sync and no tab remains incorrectly colored.
       if (!state || !state.tab) {
         setShowExitModal(false);
+        isPopStateRef.current = true;
         setActiveTab("dashboard");
         return;
       }
@@ -41,10 +45,12 @@ export default function App() {
       } else if (state.tab === "dashboard") {
         // User went back to dashboard
         setShowExitModal(false);
+        isPopStateRef.current = true;
         setActiveTab("dashboard");
       } else {
         // User went back to a secondary tab
         setShowExitModal(false);
+        isPopStateRef.current = true;
         setActiveTab(state.tab);
       }
     };
@@ -57,6 +63,13 @@ export default function App() {
 
   // Synchronize activeTab changes from UI actions to browser history
   useEffect(() => {
+    if (isPopStateRef.current) {
+      // If the tab change was already triggered by browser history navigation,
+      // reset the ref flag and do not push or replace any history entries.
+      isPopStateRef.current = false;
+      return;
+    }
+
     const currentHistoryTab = window.history.state?.tab;
 
     if (activeTab === "dashboard") {
@@ -80,33 +93,23 @@ export default function App() {
     setShowExitModal(false);
     
     // Attempt multiple strategies to exit the app / close the window:
-    // 1. Try modern bypass technique to close tab/window
-    try {
-      window.open("", "_self").close();
-    } catch (e) {
-      console.warn("Bypass close failed:", e);
-    }
-
-    // 2. Standard window.close()
+    // We removed window.open('', '_self').close() and about:blank redirects
+    // because they cause browser tabs to turn white / say 'about:blank'
+    // when the browser blocks programmatic closing of tabs.
+    
+    // 1. Standard window.close() (works in custom app wrappers, PWAs, or webviews)
     try {
       window.close();
     } catch (e) {
       console.warn("Standard close failed:", e);
     }
 
-    // 3. Fallback back navigation
+    // 2. Fallback back navigation (exits if there is a previous site)
     try {
       window.history.back();
     } catch (e) {
       console.warn("Back navigation failed:", e);
     }
-
-    // 4. Ultimate redirect fallback
-    setTimeout(() => {
-      try {
-        window.location.href = "about:blank";
-      } catch (e) {}
-    }, 250);
   };
 
   const handleCancelExit = () => {
