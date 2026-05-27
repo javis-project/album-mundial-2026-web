@@ -12,6 +12,7 @@ export default function App() {
   const [activeGroup, setActiveGroup] = useState("Especiales FWC");
   const [albumState, setAlbumState] = useState(() => loadState());
   const [showExitModal, setShowExitModal] = useState(false);
+  const [isExited, setIsExited] = useState(false);
 
   // Automatically save state when it changes
   useEffect(() => {
@@ -20,23 +21,30 @@ export default function App() {
 
   // Handle mobile / browser back button and gestures using URL Hash routing
   useEffect(() => {
-    // Initialize hash routing
-    if (!window.location.hash || window.location.hash === "#/") {
+    const currentHash = window.location.hash;
+    
+    // Initialize hash routing stack so that dashboard is always behind any secondary tab
+    if (!currentHash || currentHash === "#/" || currentHash === "#/dashboard") {
       window.history.replaceState(null, "", "#/exit");
       window.history.pushState(null, "", "#/dashboard");
       setActiveTab("dashboard");
     } else {
-      const initialTab = window.location.hash.replace("#/", "");
-      if (initialTab === "exit") {
+      // If loaded directly on a secondary tab, initialize the stack to [exit, dashboard, secondaryTab]
+      const targetTab = currentHash.replace(/^#\/?/, "");
+      if (targetTab === "exit") {
+        window.history.replaceState(null, "", "#/exit");
+        window.history.pushState(null, "", "#/dashboard");
         setActiveTab("dashboard");
       } else {
-        setActiveTab(initialTab || "dashboard");
+        window.history.replaceState(null, "", "#/exit");
+        window.history.pushState(null, "", "#/dashboard");
+        window.history.pushState(null, "", "#/" + targetTab);
+        setActiveTab(targetTab);
       }
     }
 
     const handleHashChange = () => {
       const currentHash = window.location.hash;
-      // Robust regex to extract tab name regardless of browser-specific hash slashes (e.g. #/album, #album)
       const tab = currentHash.replace(/^#\/?/, "");
       
       if (tab === "exit") {
@@ -63,7 +71,9 @@ export default function App() {
     if (targetTab === currentTab) return;
 
     if (targetTab === "dashboard") {
-      window.location.hash = "/dashboard";
+      // When navigating back to dashboard from a secondary tab, we pop history
+      // to cleanly restore the history stack to [#/exit, #/dashboard].
+      window.history.back();
     } else {
       // Secondary tab (album, trade, tools)
       if (currentTab === "dashboard") {
@@ -84,12 +94,16 @@ export default function App() {
       console.warn("window.close failed:", e);
     }
 
-    // 2. Go back in history (navigates out of the app to the previous site)
+    // 2. Go back in history (navigates out of the app if there is a previous website)
     try {
       window.history.back();
     } catch (e) {
       console.warn("window.history.back failed:", e);
     }
+
+    // 3. Fallback: If close and back did not close the page (browser sandboxing),
+    // display a beautiful exit screen advising the user to close the tab manually.
+    setIsExited(true);
   };
 
   const handleCancelExit = () => {
@@ -184,6 +198,31 @@ export default function App() {
         );
     }
   };
+
+  // If the user exited the app, render a premium glassmorphic exit page
+  if (isExited) {
+    return (
+      <div className="exit-page-container">
+        <div className="exit-modal-card">
+          <div className="exit-modal-icon-container">
+            <LogOut size={28} />
+          </div>
+          <h3 className="exit-modal-title">Sesión Finalizada</h3>
+          <p className="exit-modal-text">
+            Has salido de la aplicación. Por políticas de seguridad del navegador, puedes cerrar esta pestaña manualmente.
+          </p>
+          <div className="exit-modal-actions">
+            <button className="exit-modal-btn exit-modal-btn-cancel" onClick={() => {
+              setIsExited(false);
+              window.location.hash = "/dashboard";
+            }}>
+              Volver al Álbum
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
