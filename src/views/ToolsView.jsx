@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Download, Upload, Copy, Check, Trash2, RefreshCw, AlertTriangle, FileText, Printer } from "lucide-react";
 import { compressToCode, decompressFromCode, importStateData, getStats, getMissingList, getDuplicatesList } from "../core/dataManager";
 import { TEAMS, TEAM_NAMES } from "../core/constants";
@@ -425,115 +426,118 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
       {/* ========================================== */}
       {/* PRINT-ONLY AREA (RENDERED HIDDEN ON SCREEN) */}
       {/* ========================================== */}
-      <div id="print-area">
-        <div className="print-container">
-          <div className="print-header">
-            <h1 className="print-title">ÁLBUM COPA MUNDIAL FIFA 2026</h1>
-            <p className="print-subtitle">REPORTE DE INTERCAMBIO Y CONTROL DE COLECCIÓN</p>
-          </div>
-          
-          <div className="print-meta-box">
-            <div className="print-meta-item">
-              <strong>Coleccionista:</strong> {collectorName}<br />
-              <strong>Contacto:</strong> {contactInfo || "No especificado"}<br />
-              <strong>Fecha de Reporte:</strong> {new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+      {createPortal(
+        <div id="print-area">
+          <div className="print-container">
+            <div className="print-header">
+              <h1 className="print-title">ÁLBUM COPA MUNDIAL FIFA 2026</h1>
+              <p className="print-subtitle">REPORTE DE INTERCAMBIO Y CONTROL DE COLECCIÓN</p>
             </div>
-            <div className="print-meta-item">
-              <strong>Progreso General:</strong> {stats.percentage.toFixed(1)}% ({stats.collected}/{stats.total})<br />
-              <strong>Faltantes:</strong> {stats.missing}<br />
-              <strong>Repetidas (Extras):</strong> {stats.duplicates}
-            </div>
-          </div>
-          
-          {/* 1. Duplicates list */}
-          {includeDuplicates && (
-            <div>
-              <h3 className="print-section-title">Figuritas Repetidas (Disponibles para Intercambio)</h3>
-              {Object.keys(groupedDuplicates).length > 0 ? (
-                <table className="print-table duplicates-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: "160px" }}>Selección / Sección</th>
-                      <th>Figuritas y Cantidades Extras</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedDuplicatePrefixes.map(prefix => {
-                      const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
-                      return (
-                        <tr key={prefix}>
-                          <td><strong>{teamName}</strong> ({prefix})</td>
-                          <td>{groupedDuplicates[prefix]}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              ) : (
-                <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas repetidas disponibles en este momento.</p>
-              )}
-            </div>
-          )}
-          
-          {/* 2. Missing list */}
-          {includeMissing && (
-            <div>
-              <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
-              {Object.keys(groupedMissing).length > 0 ? (
-                <table className="print-table missing-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: "160px" }}>Selección / Sección</th>
-                      <th>Números Faltantes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedMissingPrefixes.map(prefix => {
-                      const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
-                      return (
-                        <tr key={prefix}>
-                          <td><strong>{teamName}</strong> ({prefix})</td>
-                          <td>{groupedMissing[prefix]}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              ) : (
-                <p style={{ fontSize: "10px", color: "#4b5563" }}>¡Felicidades! Álbum completo. No tienes figuritas faltantes.</p>
-              )}
-            </div>
-          )}
-          
-          {/* 3. Sync code */}
-          {includeCode && compCode && (
-            <div>
-              <h3 className="print-section-title">Sincronización Digital</h3>
-              <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "6px" }}>
-                Para transferir tu progreso a otro dispositivo o compartir tu colección con un amigo digitalmente, copia y pega este código comprimido en la opción 'Importar Código' de la sección Herramientas en la versión web o de escritorio:
-              </p>
-              <div className="print-code-box">
-                {compCode}
+            
+            <div className="print-meta-box">
+              <div className="print-meta-item">
+                <strong>Coleccionista:</strong> {collectorName}<br />
+                <strong>Contacto:</strong> {contactInfo || "No especificado"}<br />
+                <strong>Fecha de Reporte:</strong> {new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+              </div>
+              <div className="print-meta-item">
+                <strong>Progreso General:</strong> {stats.percentage.toFixed(1)}% ({stats.collected}/{stats.total})<br />
+                <strong>Faltantes:</strong> {stats.missing}<br />
+                <strong>Repetidas (Extras):</strong> {stats.duplicates}
               </div>
             </div>
-          )}
-          
-          {/* 4. Lined notes */}
-          {includeNotes && (
-            <div>
-              <h3 className="print-section-title">Notas / Acuerdos de Intercambio (Firma o Figuritas Pactadas)</h3>
-              <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "12px" }}>
-                Usa este espacio durante tus reuniones de intercambio para registrar tratos pendientes, figuritas prestadas o datos de contacto de otros coleccionistas:
-              </p>
-              <div className="print-notes-lines">
-                <div className="print-notes-line"></div>
-                <div className="print-notes-line"></div>
-                <div className="print-notes-line"></div>
+            
+            {/* 1. Duplicates list */}
+            {includeDuplicates && (
+              <div>
+                <h3 className="print-section-title">Figuritas Repetidas (Disponibles para Intercambio)</h3>
+                {Object.keys(groupedDuplicates).length > 0 ? (
+                  <table className="print-table duplicates-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "160px" }}>Selección / Sección</th>
+                        <th>Figuritas y Cantidades Extras</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedDuplicatePrefixes.map(prefix => {
+                        const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                        return (
+                          <tr key={prefix}>
+                            <td><strong>{teamName}</strong> ({prefix})</td>
+                            <td>{groupedDuplicates[prefix]}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas repetidas disponibles en este momento.</p>
+                )}
               </div>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
+            
+            {/* 2. Missing list */}
+            {includeMissing && (
+              <div>
+                <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
+                {Object.keys(groupedMissing).length > 0 ? (
+                  <table className="print-table missing-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "160px" }}>Selección / Sección</th>
+                        <th>Números Faltantes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedMissingPrefixes.map(prefix => {
+                        const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                        return (
+                          <tr key={prefix}>
+                            <td><strong>{teamName}</strong> ({prefix})</td>
+                            <td>{groupedMissing[prefix]}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ fontSize: "10px", color: "#4b5563" }}>¡Felicidades! Álbum completo. No tienes figuritas faltantes.</p>
+                )}
+              </div>
+            )}
+            
+            {/* 3. Sync code */}
+            {includeCode && compCode && (
+              <div>
+                <h3 className="print-section-title">Sincronización Digital</h3>
+                <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "6px" }}>
+                  Para transferir tu progreso a otro dispositivo o compartir tu colección con un amigo digitalmente, copia y pega este código comprimido en la opción 'Importar Código' de la sección Herramientas en la versión web o de escritorio:
+                </p>
+                <div className="print-code-box">
+                  {compCode}
+                </div>
+              </div>
+            )}
+            
+            {/* 4. Lined notes */}
+            {includeNotes && (
+              <div>
+                <h3 className="print-section-title">Notas / Acuerdos de Intercambio (Firma o Figuritas Pactadas)</h3>
+                <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "12px" }}>
+                  Usa este espacio durante tus reuniones de intercambio para registrar tratos pendientes, figuritas prestadas o datos de contacto de otros coleccionistas:
+                </p>
+                <div className="print-notes-lines">
+                  <div className="print-notes-line"></div>
+                  <div className="print-notes-line"></div>
+                  <div className="print-notes-line"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

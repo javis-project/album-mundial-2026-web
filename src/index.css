@@ -1203,29 +1203,26 @@ textarea::placeholder {
 /* PRINT STYLES FOR TRADE REPORT (PDF)        */
 /* ========================================== */
 @media print {
-  /* Hide standard dark UI components */
-  #root > :not(#print-area),
-  .app-container,
-  .main-content,
-  .sidebar,
-  .mobile-nav,
-  header,
-  footer {
+  /* Hide the React application root completely */
+  #root {
     display: none !important;
   }
   
   /* Show and stretch the printable area */
   #print-area {
     display: block !important;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    position: relative !important;
+    width: 100% !important;
     color: #111827 !important;
     background: white !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     padding: 0 !important;
     margin: 0 !important;
+  }
+  
+  body {
+    background: white !important;
+    color: #111827 !important;
   }
   
   @page {
