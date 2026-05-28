@@ -68,6 +68,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   
   // PDF / Print configuration states
+  const [exportMode, setExportMode] = useState("standard"); // "standard" or "available"
   const [collectorName, setCollectorName] = useState("Coleccionista");
   const [contactInfo, setContactInfo] = useState("");
   const [includeMissing, setIncludeMissing] = useState(true);
@@ -172,12 +173,15 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   const stats = getStats(state);
   const missingList = getMissingList(state);
   const duplicatesList = getDuplicatesList(state); // { code: qty }
+  const ownedList = Object.keys(state).filter(c => state[c] > 0);
 
   const groupedMissing = groupStickersByPrefix(missingList);
   const groupedDuplicates = groupStickersByPrefix(Object.keys(duplicatesList), duplicatesList);
+  const groupedOwned = groupStickersByPrefix(ownedList);
 
   const sortedMissingPrefixes = getSortedPrefixes(Object.keys(groupedMissing));
   const sortedDuplicatePrefixes = getSortedPrefixes(Object.keys(groupedDuplicates));
+  const sortedOwnedPrefixes = getSortedPrefixes(Object.keys(groupedOwned));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -302,7 +306,35 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "0.8rem", color: "var(--text-light)" }}>Tipo de Reporte</label>
+            <div style={{ display: "flex", gap: "20px", marginTop: "4px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+                <input
+                  type="radio"
+                  name="exportMode"
+                  checked={exportMode === "standard"}
+                  onChange={() => setExportMode("standard")}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                Reporte Estándar de Intercambio
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+                <input
+                  type="radio"
+                  name="exportMode"
+                  checked={exportMode === "available"}
+                  onChange={() => setExportMode("available")}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                Solo Figuritas Disponibles
+              </label>
+            </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid var(--border-color)", margin: "4px 0" }}></div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", opacity: exportMode === "standard" ? 1 : 0.5 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <label style={{ fontSize: "0.8rem", color: "var(--text-light)" }}>Nombre del Coleccionista</label>
               <input
@@ -310,7 +342,8 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
                 value={collectorName}
                 onChange={(e) => setCollectorName(e.target.value)}
                 placeholder="Ej: Matias"
-                style={{ background: "rgba(0,0,0,0.3)" }}
+                disabled={exportMode !== "standard"}
+                style={{ background: "rgba(0,0,0,0.3)", cursor: exportMode === "standard" ? "text" : "not-allowed" }}
               />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -320,45 +353,50 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
                 value={contactInfo}
                 onChange={(e) => setContactInfo(e.target.value)}
                 placeholder="Ej: Cel / IG / Twitter"
-                style={{ background: "rgba(0,0,0,0.3)" }}
+                disabled={exportMode !== "standard"}
+                style={{ background: "rgba(0,0,0,0.3)", cursor: exportMode === "standard" ? "text" : "not-allowed" }}
               />
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "8px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "8px", opacity: exportMode === "standard" ? 1 : 0.5 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
               <input
                 type="checkbox"
                 checked={includeMissing}
+                disabled={exportMode !== "standard"}
                 onChange={(e) => setIncludeMissing(e.target.checked)}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                style={{ width: "16px", height: "16px", cursor: exportMode === "standard" ? "pointer" : "not-allowed" }}
               />
               Incluir Faltantes
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
               <input
                 type="checkbox"
                 checked={includeDuplicates}
+                disabled={exportMode !== "standard"}
                 onChange={(e) => setIncludeDuplicates(e.target.checked)}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                style={{ width: "16px", height: "16px", cursor: exportMode === "standard" ? "pointer" : "not-allowed" }}
               />
               Incluir Repetidas
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
               <input
                 type="checkbox"
                 checked={includeCode}
+                disabled={exportMode !== "standard"}
                 onChange={(e) => setIncludeCode(e.target.checked)}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                style={{ width: "16px", height: "16px", cursor: exportMode === "standard" ? "pointer" : "not-allowed" }}
               />
               Incluir Código Digital
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer", color: "var(--slate-text)" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
               <input
                 type="checkbox"
                 checked={includeNotes}
+                disabled={exportMode !== "standard"}
                 onChange={(e) => setIncludeNotes(e.target.checked)}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                style={{ width: "16px", height: "16px", cursor: exportMode === "standard" ? "pointer" : "not-allowed" }}
               />
               Incluir Espacio de Notas
             </label>
@@ -431,107 +469,141 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
           <div className="print-container">
             <div className="print-header">
               <h1 className="print-title">ÁLBUM COPA MUNDIAL FIFA 2026</h1>
-              <p className="print-subtitle">REPORTE DE INTERCAMBIO Y CONTROL DE COLECCIÓN</p>
+              {exportMode === "standard" && <p className="print-subtitle">REPORTE DE INTERCAMBIO Y CONTROL DE COLECCIÓN</p>}
             </div>
             
-            <div className="print-meta-box">
-              <div className="print-meta-item">
-                <strong>Coleccionista:</strong> {collectorName}<br />
-                <strong>Contacto:</strong> {contactInfo || "No especificado"}<br />
-                <strong>Fecha de Reporte:</strong> {new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+            {exportMode === "standard" && (
+              <div className="print-meta-box">
+                <div className="print-meta-item">
+                  <strong>Coleccionista:</strong> {collectorName}<br />
+                  <strong>Contacto:</strong> {contactInfo || "No especificado"}<br />
+                  <strong>Fecha de Reporte:</strong> {new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+                </div>
+                <div className="print-meta-item">
+                  <strong>Progreso General:</strong> {stats.percentage.toFixed(1)}% ({stats.collected}/{stats.total})<br />
+                  <strong>Faltantes:</strong> {stats.missing}<br />
+                  <strong>Repetidas (Extras):</strong> {stats.duplicates}
+                </div>
               </div>
-              <div className="print-meta-item">
-                <strong>Progreso General:</strong> {stats.percentage.toFixed(1)}% ({stats.collected}/{stats.total})<br />
-                <strong>Faltantes:</strong> {stats.missing}<br />
-                <strong>Repetidas (Extras):</strong> {stats.duplicates}
-              </div>
-            </div>
+            )}
             
-            {/* 1. Duplicates list */}
-            {includeDuplicates && (
+            {exportMode === "standard" ? (
+              <>
+                {/* 1. Duplicates list */}
+                {includeDuplicates && (
+                  <div>
+                    <h3 className="print-section-title">Figuritas Repetidas (Disponibles para Intercambio)</h3>
+                    {Object.keys(groupedDuplicates).length > 0 ? (
+                      <table className="print-table duplicates-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: "160px" }}>Selección / Sección</th>
+                            <th>Figuritas y Cantidades Extras</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedDuplicatePrefixes.map(prefix => {
+                            const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                            return (
+                              <tr key={prefix}>
+                                <td><strong>{teamName}</strong> ({prefix})</td>
+                                <td>{groupedDuplicates[prefix]}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas repetidas disponibles en este momento.</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* 2. Missing list */}
+                {includeMissing && (
+                  <div>
+                    <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
+                    {Object.keys(groupedMissing).length > 0 ? (
+                      <table className="print-table missing-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: "160px" }}>Selección / Sección</th>
+                            <th>Números Faltantes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedMissingPrefixes.map(prefix => {
+                            const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                            return (
+                              <tr key={prefix}>
+                                <td><strong>{teamName}</strong> ({prefix})</td>
+                                <td>{groupedMissing[prefix]}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p style={{ fontSize: "10px", color: "#4b5563" }}>¡Felicidades! Álbum completo. No tienes figuritas faltantes.</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* 3. Sync code */}
+                {includeCode && compCode && (
+                  <div>
+                    <h3 className="print-section-title">Sincronización Digital</h3>
+                    <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "6px" }}>
+                      Para transferir tu progreso a otro dispositivo o compartir tu colección con un amigo digitalmente, copia y pega este código comprimido en la opción 'Importar Código' de la sección Herramientas en la versión web o de escritorio:
+                    </p>
+                    <div className="print-code-box">
+                      {compCode}
+                    </div>
+                  </div>
+                )}
+                
+                {/* 4. Lined notes */}
+                {includeNotes && (
+                  <div>
+                    <h3 className="print-section-title">Notas / Acuerdos de Intercambio (Firma o Figuritas Pactadas)</h3>
+                    <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "12px" }}>
+                      Usa este espacio durante tus reuniones de intercambio para registrar tratos pendientes, figuritas prestadas o datos de contacto de otros coleccionistas:
+                    </p>
+                    <div className="print-notes-lines">
+                      <div className="print-notes-line"></div>
+                      <div className="print-notes-line"></div>
+                      <div className="print-notes-line"></div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Figuritas disponibles mode */
               <div>
-                <h3 className="print-section-title">Figuritas Repetidas (Disponibles para Intercambio)</h3>
-                {Object.keys(groupedDuplicates).length > 0 ? (
-                  <table className="print-table duplicates-table">
+                <h3 className="print-section-title">Figuritas disponibles</h3>
+                {Object.keys(groupedOwned).length > 0 ? (
+                  <table className="print-table owned-table">
                     <thead>
                       <tr>
                         <th style={{ width: "160px" }}>Selección / Sección</th>
-                        <th>Figuritas y Cantidades Extras</th>
+                        <th>Figuritas disponibles</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedDuplicatePrefixes.map(prefix => {
+                      {sortedOwnedPrefixes.map(prefix => {
                         const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
                         return (
                           <tr key={prefix}>
                             <td><strong>{teamName}</strong> ({prefix})</td>
-                            <td>{groupedDuplicates[prefix]}</td>
+                            <td>{groupedOwned[prefix]}</td>
                           </tr>
                         );
                       })}
                     </tbody>
                   </table>
                 ) : (
-                  <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas repetidas disponibles en este momento.</p>
+                  <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas disponibles en este momento.</p>
                 )}
-              </div>
-            )}
-            
-            {/* 2. Missing list */}
-            {includeMissing && (
-              <div>
-                <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
-                {Object.keys(groupedMissing).length > 0 ? (
-                  <table className="print-table missing-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: "160px" }}>Selección / Sección</th>
-                        <th>Números Faltantes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedMissingPrefixes.map(prefix => {
-                        const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
-                        return (
-                          <tr key={prefix}>
-                            <td><strong>{teamName}</strong> ({prefix})</td>
-                            <td>{groupedMissing[prefix]}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={{ fontSize: "10px", color: "#4b5563" }}>¡Felicidades! Álbum completo. No tienes figuritas faltantes.</p>
-                )}
-              </div>
-            )}
-            
-            {/* 3. Sync code */}
-            {includeCode && compCode && (
-              <div>
-                <h3 className="print-section-title">Sincronización Digital</h3>
-                <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "6px" }}>
-                  Para transferir tu progreso a otro dispositivo o compartir tu colección con un amigo digitalmente, copia y pega este código comprimido en la opción 'Importar Código' de la sección Herramientas en la versión web o de escritorio:
-                </p>
-                <div className="print-code-box">
-                  {compCode}
-                </div>
-              </div>
-            )}
-            
-            {/* 4. Lined notes */}
-            {includeNotes && (
-              <div>
-                <h3 className="print-section-title">Notas / Acuerdos de Intercambio (Firma o Figuritas Pactadas)</h3>
-                <p style={{ fontSize: "9px", color: "#4b5563", marginBottom: "12px" }}>
-                  Usa este espacio durante tus reuniones de intercambio para registrar tratos pendientes, figuritas prestadas o datos de contacto de otros coleccionistas:
-                </p>
-                <div className="print-notes-lines">
-                  <div className="print-notes-line"></div>
-                  <div className="print-notes-line"></div>
-                  <div className="print-notes-line"></div>
-                </div>
               </div>
             )}
           </div>
