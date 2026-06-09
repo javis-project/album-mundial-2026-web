@@ -73,6 +73,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   const [contactInfo, setContactInfo] = useState("");
   const [includeMissing, setIncludeMissing] = useState(true);
   const [includeDuplicates, setIncludeDuplicates] = useState(true);
+  const [includeSingle, setIncludeSingle] = useState(true);
   const [includeCode, setIncludeCode] = useState(true);
   const [includeNotes, setIncludeNotes] = useState(true);
   const [compCode, setCompCode] = useState("");
@@ -174,14 +175,17 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
   const missingList = getMissingList(state);
   const duplicatesList = getDuplicatesList(state); // { code: qty }
   const ownedList = Object.keys(state).filter(c => state[c] > 0);
+  const singlesList = Object.keys(state).filter(c => state[c] === 1);
 
   const groupedMissing = groupStickersByPrefix(missingList);
   const groupedDuplicates = groupStickersByPrefix(Object.keys(duplicatesList), duplicatesList);
   const groupedOwned = groupStickersByPrefix(ownedList);
+  const groupedSingles = groupStickersByPrefix(singlesList);
 
   const sortedMissingPrefixes = getSortedPrefixes(Object.keys(groupedMissing));
   const sortedDuplicatePrefixes = getSortedPrefixes(Object.keys(groupedDuplicates));
   const sortedOwnedPrefixes = getSortedPrefixes(Object.keys(groupedOwned));
+  const sortedSinglesPrefixes = getSortedPrefixes(Object.keys(groupedSingles));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -383,6 +387,16 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
             <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
               <input
                 type="checkbox"
+                checked={includeSingle}
+                disabled={exportMode !== "standard"}
+                onChange={(e) => setIncludeSingle(e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: exportMode === "standard" ? "pointer" : "not-allowed" }}
+              />
+              Incluir Únicas (x1)
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: exportMode === "standard" ? "pointer" : "not-allowed", color: "var(--slate-text)" }}>
+              <input
+                type="checkbox"
                 checked={includeCode}
                 disabled={exportMode !== "standard"}
                 onChange={(e) => setIncludeCode(e.target.checked)}
@@ -519,7 +533,7 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
                   </div>
                 )}
                 
-                {/* 2. Missing list */}
+                 {/* 2. Missing list */}
                 {includeMissing && (
                   <div>
                     <h3 className="print-section-title">Figuritas Faltantes (Necesitadas)</h3>
@@ -548,6 +562,37 @@ export default function ToolsView({ state, onStateChange, onResetState }) {
                     )}
                   </div>
                 )}
+
+                {/* 3. Singles list */}
+                {includeSingle && (
+                  <div>
+                    <h3 className="print-section-title">Figuritas Obtenidas Solo Una Vez (No Repetidas)</h3>
+                    {Object.keys(groupedSingles).length > 0 ? (
+                      <table className="print-table singles-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: "160px" }}>Selección / Sección</th>
+                            <th>Figuritas Únicas</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedSinglesPrefixes.map(prefix => {
+                            const teamName = prefix === "FWC" ? "Especiales FWC" : prefix === "CC" ? "Coca-Cola" : TEAM_NAMES[prefix] || prefix;
+                            return (
+                              <tr key={prefix}>
+                                <td><strong>{teamName}</strong> ({prefix})</td>
+                                <td>{groupedSingles[prefix]}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p style={{ fontSize: "10px", color: "#4b5563" }}>No tienes figuritas obtenidas solo una vez en este momento.</p>
+                    )}
+                  </div>
+                )}
+
                 
                 {/* 3. Sync code */}
                 {includeCode && compCode && (

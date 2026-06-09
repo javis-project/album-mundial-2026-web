@@ -1337,6 +1337,10 @@ textarea::placeholder {
   background-color: #8c731f !important; /* Gold header background */
 }
 
+.print-table.singles-table th {
+  background-color: #1b4d3e !important; /* Elegant Green header background */
+}
+
 .print-table tr:nth-child(even) {
   background-color: #fcfcfd;
 }
